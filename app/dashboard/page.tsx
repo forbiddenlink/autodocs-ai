@@ -32,6 +32,7 @@ interface Repository {
 }
 
 type SortOption = "name-asc" | "name-desc" | "sync-asc" | "sync-desc";
+type FilterOption = "all" | "completed" | "analyzing" | "pending" | "error";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function DashboardPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("name-asc");
+  const [filterOption, setFilterOption] = useState<FilterOption>("all");
 
   // Function to fetch repositories (can be called for retry)
   const fetchRepositories = async () => {
@@ -185,6 +187,14 @@ export default function DashboardPage() {
     return styles[status as keyof typeof styles] || styles.pending;
   };
 
+  // Helper function to filter repositories by status
+  const filterRepositories = (repos: Repository[]): Repository[] => {
+    if (filterOption === "all") {
+      return repos;
+    }
+    return repos.filter((repo) => repo.status === filterOption);
+  };
+
   // Helper function to sort repositories
   const sortRepositories = (repos: Repository[]): Repository[] => {
     const sorted = [...repos];
@@ -210,8 +220,9 @@ export default function DashboardPage() {
     }
   };
 
-  // Get sorted repositories
-  const sortedRepositories = sortRepositories(repositories);
+  // Get filtered and sorted repositories
+  const filteredRepositories = filterRepositories(repositories);
+  const sortedRepositories = sortRepositories(filteredRepositories);
 
   if (loading) {
     return (
@@ -290,6 +301,34 @@ export default function DashboardPage() {
             <h2 className="text-2xl sm:text-3xl font-semibold">Your Repositories</h2>
             {!reposLoading && !reposError && repositories.length > 0 && (
               <div className="flex items-center gap-3 flex-wrap">
+                {/* Filter Dropdown */}
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="filter-select"
+                    className="text-sm font-medium"
+                    style={{ color: mutedColor }}
+                  >
+                    Filter:
+                  </label>
+                  <select
+                    id="filter-select"
+                    value={filterOption}
+                    onChange={(e) => setFilterOption(e.target.value as FilterOption)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+                    style={{
+                      backgroundColor:
+                        theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
+                      color: textColor,
+                      border: `1px solid ${borderColor}`,
+                    }}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="analyzing">Analyzing</option>
+                    <option value="pending">Pending</option>
+                    <option value="error">Error</option>
+                  </select>
+                </div>
                 {/* Sort Dropdown */}
                 <div className="flex items-center gap-2">
                   <label
