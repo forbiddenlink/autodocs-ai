@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthenticatedNav } from "@/components/AuthenticatedNav";
+import { ErrorState } from "@/components/ErrorState";
 import { useTheme } from "@/components/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,62 +37,67 @@ export default function DashboardPage() {
   const [reposLoading, setReposLoading] = useState(false);
   const [reposError, setReposError] = useState<string | null>(null);
 
+  // Function to fetch repositories (can be called for retry)
+  const fetchRepositories = async () => {
+    try {
+      setReposLoading(true);
+      setReposError(null);
+
+      const reposResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/repos`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (reposResponse.ok) {
+        const reposData = await reposResponse.json();
+        setRepositories(reposData.repositories || []);
+      } else {
+        setReposError("Failed to load repositories");
+      }
+    } catch (reposErr) {
+      console.error("Error fetching repositories:", reposErr);
+      setReposError("Unable to connect to the server. Please check your connection.");
+    } finally {
+      setReposLoading(false);
+    }
+  };
+
+  // Function to check authentication (can be called for retry)
+  const checkAuthentication = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Use relative URL to hit Next.js API routes
+      const authResponse = await fetch("/api/auth/status", {
+        credentials: "include",
+      });
+
+      const authData = await authResponse.json();
+
+      if (!authData.authenticated) {
+        window.location.href = "/?error=not_authenticated";
+        return;
+      }
+
+      setUser(authData.user);
+      setLoading(false);
+
+      // After successful auth, fetch repositories
+      await fetchRepositories();
+    } catch (err) {
+      console.error("Error during authentication check:", err);
+      setError("Failed to load user data");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Update page title dynamically for client component
     document.title = "Dashboard - AutoDocs AI";
-
-    const init = async () => {
-      try {
-        // Check authentication status
-        const isDevelopment = window.location.hostname === "localhost";
-        let authResponse;
-
-        // Use relative URL to hit Next.js API routes
-        authResponse = await fetch("/api/auth/status", {
-          credentials: "include",
-        });
-
-        const authData = await authResponse.json();
-
-        if (!authData.authenticated) {
-          window.location.href = "/?error=not_authenticated";
-          return;
-        }
-
-        setUser(authData.user);
-        setLoading(false);
-
-        // Fetch repositories (in separate try-catch to not break auth)
-        try {
-          setReposLoading(true);
-          const reposResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/repos`,
-            {
-              credentials: "include",
-            }
-          );
-
-          if (reposResponse.ok) {
-            const reposData = await reposResponse.json();
-            setRepositories(reposData.repositories || []);
-          } else {
-            setReposError("Failed to load repositories");
-          }
-        } catch (reposErr) {
-          console.error("Error fetching repositories:", reposErr);
-          setReposError("Failed to load repositories");
-        } finally {
-          setReposLoading(false);
-        }
-      } catch (err) {
-        console.error("Error during initialization:", err);
-        setError("Failed to load user data");
-        setLoading(false);
-        setReposLoading(false);
-      }
-    };
-
-    init();
+    checkAuthentication();
   }, []);
 
   // Use inline styles as fallback since Tailwind custom colors aren't compiling
@@ -135,9 +141,12 @@ export default function DashboardPage() {
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
         <AuthenticatedNav />
         <main className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl">
-          <div className="text-center">
-            <p className="text-lg text-red-500">{error}</p>
-          </div>
+          <ErrorState
+            message="Failed to load user data"
+            description="We couldn't retrieve your user information. This might be due to a network issue or server problem."
+            onRetry={checkAuthentication}
+            retryText="Retry"
+          />
         </main>
       </div>
     );
@@ -200,9 +209,12 @@ export default function DashboardPage() {
 
           {/* Error State */}
           {reposError && !reposLoading && (
-            <div className="text-center py-8">
-              <p className="text-base xl:text-lg text-red-500">{reposError}</p>
-            </div>
+            <ErrorState
+              message="Failed to load repositories"
+              description={reposError}
+              onRetry={fetchRepositories}
+              retryText="Retry"
+            />
           )}
 
           {/* Empty State */}
