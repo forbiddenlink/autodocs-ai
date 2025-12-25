@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import { logger } from "./utils/logger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
@@ -15,9 +17,14 @@ import {
   sentryErrorHandler,
 } from "./config/sentry.js";
 import { metricsMiddleware, metricsEndpoint, getMetricsJSON } from "./middleware/metrics.js";
+import authRoutes from "./routes/auth.js";
 
-// Load environment variables
-dotenv.config();
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from backend/.env
+dotenv.config({ path: join(__dirname, "../.env") });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -157,10 +164,10 @@ app.get("/api/metrics", async (req, res) => {
   }
 });
 
-// API routes (to be added)
-// app.use('/api/auth', authRoutes);
-// app.use('/api/repos', repoRoutes);
-// app.use('/api/webhooks', webhookRoutes);
+// API routes
+app.use("/api/auth", authRoutes);
+// app.use('/api/repos', repoRoutes);  // To be added
+// app.use('/api/webhooks', webhookRoutes);  // To be added
 
 // Track server readiness for health checks
 let isReady = false;

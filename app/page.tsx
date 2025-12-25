@@ -1,26 +1,10 @@
+import { Navigation } from "@/components/Navigation";
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center">
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-                AutoDocs AI
-              </span>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-foreground hover:text-primary transition">
-                Features
-              </button>
-              <button className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition">
-                Sign In
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="flex flex-col items-center justify-center min-h-screen px-4 py-16 sm:px-8 md:px-16 lg:px-24 pt-20 sm:pt-24">
