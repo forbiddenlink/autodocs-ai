@@ -13,27 +13,41 @@ interface User {
   githubId: string;
 }
 
+interface Repository {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  fullName: string;
+  language: string;
+  stars: number;
+  lastSync: string | null;
+  status: string;
+  private: boolean;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [reposLoading, setReposLoading] = useState(false);
+  const [reposError, setReposError] = useState<string | null>(null);
 
   useEffect(() => {
     // Update page title dynamically for client component
     document.title = "Dashboard - AutoDocs AI";
 
-    // Check authentication status
-    const checkAuth = async () => {
+    const init = async () => {
       try {
-        // In development, try dev endpoint first (doesn't need database)
+        // Check authentication status
         const isDevelopment = window.location.hostname === "localhost";
-        let response;
+        let authResponse;
 
         if (isDevelopment) {
-          // Try dev endpoint first in development
-          response = await fetch(
+          authResponse = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/status-dev`,
             {
               credentials: "include",
@@ -41,41 +55,74 @@ export default function DashboardPage() {
           );
         }
 
-        // If dev endpoint didn't work or we're not in development, try main endpoint
-        if (!response || !response.ok) {
-          response = await fetch(
+        if (!authResponse || !authResponse.ok) {
+          authResponse = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
             {
-              credentials: "include", // Include cookies
+              credentials: "include",
             }
           );
         }
 
-        const data = await response.json();
+        const authData = await authResponse.json();
 
-        if (!data.authenticated) {
-          // Not authenticated, redirect to home
-          router.push("/?error=not_authenticated");
+        if (!authData.authenticated) {
+          window.location.href = "/?error=not_authenticated";
           return;
         }
 
-        setUser(data.user);
-      } catch (err) {
-        console.error("Error checking authentication:", err);
-        setError("Failed to load user data");
-      } finally {
+        setUser(authData.user);
         setLoading(false);
+
+        // Fetch repositories
+        setReposLoading(true);
+        const reposResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/repos`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (reposResponse.ok) {
+          const reposData = await reposResponse.json();
+          setRepositories(reposData.repositories || []);
+        } else {
+          setReposError("Failed to load repositories");
+        }
+        setReposLoading(false);
+      } catch (err) {
+        console.error("Error during initialization:", err);
+        setError("Failed to load user data");
+        setLoading(false);
+        setReposLoading(false);
       }
     };
 
-    checkAuth();
-  }, [router]);
+    init();
+  }, []);
 
   // Use inline styles as fallback since Tailwind custom colors aren't compiling
   const bgColor = theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(0 0% 100%)";
   const textColor = theme === "dark" ? "hsl(210 40% 98%)" : "hsl(222.2 84% 4.9%)";
   const mutedColor = theme === "dark" ? "hsl(215 20.2% 65.1%)" : "hsl(215.4 16.3% 46.9%)";
   const borderColor = theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)";
+
+  // Helper function to get language color
+  const getLanguageColor = (language: string): string => {
+    const colors: { [key: string]: string } = {
+      TypeScript: "#3178c6",
+      JavaScript: "#f1e05a",
+      Python: "#3572A5",
+      Go: "#00ADD8",
+      Rust: "#dea584",
+      Java: "#b07219",
+      Ruby: "#701516",
+      PHP: "#4F5D95",
+      Swift: "#ffac45",
+      Kotlin: "#A97BFF",
+    };
+    return colors[language] || "#6e7681";
+  };
 
   if (loading) {
     return (
@@ -148,10 +195,91 @@ export default function DashboardPage() {
         {/* Repository List Section */}
         <section aria-label="Repository list">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Your Repositories</h2>
-          <p className="text-base xl:text-lg" style={{ color: mutedColor }}>
-            Your repositories will appear here.
-          </p>
-          {/* Future: Repository grid will go here with multi-column layout for desktop */}
+
+          {/* Loading State */}
+          {reposLoading && (
+            <div className="text-center py-8">
+              <p className="text-base xl:text-lg" style={{ color: mutedColor }}>
+                Loading repositories...
+              </p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {reposError && !reposLoading && (
+            <div className="text-center py-8">
+              <p className="text-base xl:text-lg text-red-500">{reposError}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!reposLoading && !reposError && repositories.length === 0 && (
+            <p className="text-base xl:text-lg" style={{ color: mutedColor }}>
+              Your repositories will appear here.
+            </p>
+          )}
+
+          {/* Repository Grid */}
+          {!reposLoading && !reposError && repositories.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {repositories.map((repo) => (
+                <div
+                  key={repo.id}
+                  className="p-4 rounded-lg"
+                  style={{ border: `1px solid ${borderColor}` }}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-semibold truncate" title={repo.name}>
+                      {repo.name}
+                    </h3>
+                    {repo.private && (
+                      <span
+                        className="text-xs px-2 py-1 rounded"
+                        style={{
+                          backgroundColor:
+                            theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
+                          color: mutedColor,
+                        }}
+                      >
+                        Private
+                      </span>
+                    )}
+                  </div>
+
+                  <p
+                    className="text-sm mb-3 line-clamp-2"
+                    style={{ color: mutedColor }}
+                    title={repo.description}
+                  >
+                    {repo.description || "No description available"}
+                  </p>
+
+                  <div className="flex items-center gap-3 text-sm" style={{ color: mutedColor }}>
+                    {repo.language && (
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: getLanguageColor(repo.language) }}
+                        />
+                        {repo.language}
+                      </span>
+                    )}
+                    {repo.stars > 0 && (
+                      <span className="flex items-center gap-1">⭐ {repo.stars}</span>
+                    )}
+                  </div>
+
+                  {repo.lastSync && (
+                    <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${borderColor}` }}>
+                      <p className="text-xs" style={{ color: mutedColor }}>
+                        Last synced: {new Date(repo.lastSync).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>

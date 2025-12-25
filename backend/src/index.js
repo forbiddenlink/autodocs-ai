@@ -20,6 +20,7 @@ import {
 import { metricsMiddleware, metricsEndpoint, getMetricsJSON } from "./middleware/metrics.js";
 import authRoutes from "./routes/auth.js";
 import testAuthRoutes from "./routes/test-auth.js";
+import repoRoutes from "./routes/repos.js";
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -169,6 +170,7 @@ app.get("/api/metrics", async (req, res) => {
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/repos", repoRoutes);
 
 // Test auth routes (synchronously available, no database required)
 if (process.env.NODE_ENV !== "production") {
@@ -183,7 +185,6 @@ if (process.env.NODE_ENV !== "production") {
   logger.info("✅ Development auth routes registered at /api/auth-dev");
 }
 
-// app.use('/api/repos', repoRoutes);  // To be added
 // app.use('/api/webhooks', webhookRoutes);  // To be added
 
 // Track server readiness for health checks
