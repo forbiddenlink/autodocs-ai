@@ -1,6 +1,6 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-import { logger } from '../utils/logger.js';
+import pg from "pg";
+import dotenv from "dotenv";
+import { logger } from "../utils/logger.js";
 
 const { Pool } = pg;
 
@@ -14,12 +14,12 @@ const pool = new Pool({
 });
 
 // Test the connection
-pool.on('connect', () => {
-  logger.info('✅ Database connection established');
+pool.on("connect", () => {
+  logger.info("✅ Database connection established");
 });
 
-pool.on('error', (err) => {
-  logger.error('❌ Unexpected database error:', err);
+pool.on("error", (err) => {
+  logger.error("❌ Unexpected database error:", err);
   process.exit(-1);
 });
 
@@ -43,7 +43,7 @@ export const getClient = async () => {
 
   // Set a timeout of 5 seconds
   const timeout = setTimeout(() => {
-    logger.error('A client has been checked out for more than 5 seconds!');
+    logger.error("A client has been checked out for more than 5 seconds!");
   }, 5000);
 
   // Monkey patch the release method to clear timeout

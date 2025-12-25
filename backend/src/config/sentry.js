@@ -1,5 +1,5 @@
-import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 /**
  * Initialize Sentry for error tracking
@@ -7,13 +7,13 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 export const initSentry = (app) => {
   // Only initialize if DSN is provided
   if (!process.env.SENTRY_DSN) {
-    console.log('⚠️  Sentry DSN not configured. Error tracking disabled.');
+    console.log("⚠️  Sentry DSN not configured. Error tracking disabled.");
     return;
   }
 
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || "development",
     integrations: [
       // HTTP integration for request details
       new Sentry.Integrations.Http({ tracing: true }),
@@ -23,16 +23,16 @@ export const initSentry = (app) => {
       nodeProfilingIntegration(),
     ],
     // Performance Monitoring
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
     // Profiling
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    profilesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
     // Enhanced context
     beforeSend(event, hint) {
       // Add custom context
       if (hint.originalException) {
         event.contexts = event.contexts || {};
         event.contexts.runtime = {
-          name: 'node',
+          name: "node",
           version: process.version,
         };
       }
@@ -40,7 +40,7 @@ export const initSentry = (app) => {
     },
   });
 
-  console.log('✅ Sentry error tracking initialized');
+  console.log("✅ Sentry error tracking initialized");
 };
 
 /**
@@ -86,7 +86,7 @@ export const sentryErrorHandler = () => {
  */
 export const captureException = (error, context = {}) => {
   if (!process.env.SENTRY_DSN) {
-    console.error('Error (Sentry not configured):', error);
+    console.error("Error (Sentry not configured):", error);
     return;
   }
 
@@ -98,7 +98,7 @@ export const captureException = (error, context = {}) => {
 /**
  * Add breadcrumb for tracking user actions
  */
-export const addBreadcrumb = (message, category, level = 'info', data = {}) => {
+export const addBreadcrumb = (message, category, level = "info", data = {}) => {
   if (!process.env.SENTRY_DSN) {
     return;
   }

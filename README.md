@@ -20,23 +20,27 @@ AutoDocs AI connects to your GitHub repositories, analyzes your codebase using a
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first CSS framework
 - **shadcn/ui** - High-quality React components
 
 ### Backend
+
 - **Node.js** - JavaScript runtime
 - **Express** - Web application framework
 - **PostgreSQL** - Relational database for metadata
 - **Pinecone** - Vector database for embeddings
 
 ### AI & Analysis
+
 - **Claude API (Anthropic)** - AI-powered documentation generation
 - **Tree-sitter** - Code parsing and AST generation
 - **RAG** - Retrieval-Augmented Generation for context-aware chat
 
 ### Infrastructure
+
 - **Vercel** - Frontend deployment
 - **Railway** - Backend deployment
 - **GitHub OAuth** - Authentication
@@ -49,6 +53,7 @@ AutoDocs AI connects to your GitHub repositories, analyzes your codebase using a
 - **Git** - Version control
 
 You'll also need accounts and API keys for:
+
 - **GitHub** - For OAuth and repository access
 - **Anthropic** - For Claude API access
 - **Pinecone** - For vector embeddings storage
@@ -62,6 +67,7 @@ You'll also need accounts and API keys for:
 ```
 
 This automated script will:
+
 - ✓ Verify Node.js installation
 - ✓ Create environment configuration files
 - ✓ Install all dependencies
@@ -74,21 +80,25 @@ Update `.env.local` and `backend/.env` with your API keys (the init script creat
 ### 3. Set Up Services
 
 #### PostgreSQL Database
+
 ```bash
 createdb autodocs_dev
 cd backend && npm run migrate
 ```
 
 #### GitHub OAuth App
+
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Create new OAuth App with callback: `http://localhost:3000/api/auth/callback`
 3. Add credentials to `.env` files
 
 #### Anthropic API Key
+
 1. Get key from [Anthropic Console](https://console.anthropic.com/)
 2. Add to `.env` files
 
 #### Pinecone Index
+
 1. Create index at [Pinecone](https://www.pinecone.io/)
 2. Name: `autodocs`, Dimension: `1536`
 3. Add credentials to `.env` files
@@ -96,11 +106,13 @@ cd backend && npm run migrate
 ### 4. Start Development Servers
 
 **Terminal 1 (Backend):**
+
 ```bash
 cd backend && npm run dev
 ```
 
 **Terminal 2 (Frontend):**
+
 ```bash
 npm run dev
 ```
@@ -135,6 +147,15 @@ autodocs-ai/
 └── README.md           # This file
 ```
 
+## 📚 Documentation
+
+- **[Deployment Guide](./DEPLOYMENT.md)** - Comprehensive CI/CD pipeline and deployment procedures
+- **[Style Guide](./STYLE_GUIDE.md)** - Code style standards, linting, and formatting rules
+- **[Development Guide](./DEVELOPMENT_GUIDE.md)** - Workflow for autonomous development agents
+- **[Environment Parity](./ENVIRONMENT_PARITY.md)** - Maintaining consistency across environments
+- **[Migrations Guide](./MIGRATIONS.md)** - Database migration management
+- **[Backup & Restore](./BACKUP_RESTORE.md)** - Database backup and recovery procedures
+
 ## 🧪 Testing
 
 This project includes **200+ comprehensive end-to-end test cases** covering:
@@ -152,6 +173,7 @@ See `feature_list.json` for the complete feature list and testing steps.
 This project uses an **autonomous development approach** with multiple agent sessions:
 
 ### For Current Session
+
 1. ✅ Review `feature_list.json` to understand all features
 2. ✅ Implement features one at a time, starting with highest priority
 3. ✅ Test thoroughly before marking `"passes": true`
@@ -161,6 +183,7 @@ This project uses an **autonomous development approach** with multiple agent ses
 ### For Future Agents
 
 **CRITICAL RULES:**
+
 - 📋 `feature_list.json` is the single source of truth
 - 🚫 **NEVER** remove or edit feature descriptions
 - 🚫 **NEVER** modify testing steps
@@ -171,14 +194,14 @@ This project uses an **autonomous development approach** with multiple agent ses
 
 ### Key Pages & Routes
 
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page with hero and features |
-| `/dashboard` | Repository list and management |
-| `/repos/[id]` | Documentation viewer with TOC |
-| `/repos/[id]/chat` | AI chat interface |
-| `/repos/[id]/settings` | Repository settings and controls |
-| `/settings` | User profile and preferences |
+| Route                  | Description                         |
+| ---------------------- | ----------------------------------- |
+| `/`                    | Landing page with hero and features |
+| `/dashboard`           | Repository list and management      |
+| `/repos/[id]`          | Documentation viewer with TOC       |
+| `/repos/[id]/chat`     | AI chat interface                   |
+| `/repos/[id]/settings` | Repository settings and controls    |
+| `/settings`            | User profile and preferences        |
 
 ## 🎯 Performance Targets
 

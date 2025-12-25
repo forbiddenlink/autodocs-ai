@@ -1,4 +1,4 @@
-import { logger } from '../utils/logger.js';
+import { logger } from "../utils/logger.js";
 
 export const errorHandler = (err, req, res, next) => {
   logger.error(`Error: ${err.message}`);
@@ -9,8 +9,8 @@ export const errorHandler = (err, req, res, next) => {
 
   res.status(statusCode).json({
     error: {
-      message: err.message || 'Internal Server Error',
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    }
+      message: err.message || "Internal Server Error",
+      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    },
   });
 };
