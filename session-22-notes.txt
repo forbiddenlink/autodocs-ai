@@ -1,11 +1,3 @@
-## AutoDocs AI - Development Progress
-
-**Last Updated**: December 25, 2025 - Session 22
-**Tests Passing**: 72/186 (38.7%)
-**Status**: Active Development - Documentation Endpoint & Token Refresh Implemented
-
----
-
 ## Session 22 Summary - API Documentation Endpoint & OAuth Token Refresh
 
 **Date**: December 25, 2025
@@ -40,10 +32,39 @@
 - ✅ Mock data for development/testing
 - ✅ Ready for database integration
 
+**Mock Data**:
+Each document includes:
+- id, repoId, path, type, content
+- generatedAt, updatedAt timestamps
+- Realistic markdown content
+- Proper formatting
+
 **Example Request**:
 ```
 GET /api/repos/1/docs
 GET /api/repos/1/docs?type=readme
+```
+
+**Example Response**:
+```json
+{
+  "documents": [
+    {
+      "id": 1,
+      "repoId": 1,
+      "path": "README.md",
+      "type": "readme",
+      "content": "# AutoDocs AI\n\n...",
+      "generatedAt": "2025-12-25T09:00:00Z",
+      "updatedAt": "2025-12-25T09:00:00Z"
+    }
+  ],
+  "count": 5,
+  "repository": {
+    "id": 1,
+    "name": "autodocs-ai"
+  }
+}
 ```
 
 #### 2. ✅ OAuth Token Refresh Mechanism
@@ -364,15 +385,3 @@ Both features are production-ready (with PostgreSQL connection for production da
 - **Remaining**: 114 tests to implement
 
 At current velocity (1-2 tests per session), estimated ~60-115 more sessions to complete all features. However, many remaining features are simpler or can be batched, so actual time may be less.
-
----
-
-## Session 21 Summary - POST /api/auth/github Endpoint Implementation
-
-**Date**: December 25, 2025
-**Duration**: ~2 hours
-**Tests at Start**: 69/186 (37.1%)
-**Tests at End**: 70/186 (37.6%)
-**Tests Completed**: 1 (API endpoint POST /api/auth/github handles OAuth)
-
-[Previous session content continues...]
