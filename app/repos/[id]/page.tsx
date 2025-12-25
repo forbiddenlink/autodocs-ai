@@ -1,4 +1,5 @@
 "use client";
+// Force rebuild - added TOC feature
 
 import { Navigation } from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -44,10 +45,13 @@ export default function RepositoryPage() {
   const [repository, setRepository] = useState<Repository | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [headings, setHeadings] = useState<{ id: string; text: string; level: number }[]>([]);
+  const [activeHeading, setActiveHeading] = useState<string | null>(null);
 
   useEffect(() => {
     // Update page title dynamically for client component
     document.title = "Repository - AutoDocs AI";
+    console.log("📚 Documentation viewer with TOC loading...");
 
     const init = async () => {
       try {
@@ -181,6 +185,71 @@ export default function RepositoryPage() {
     return () => clearTimeout(timer);
   }, [selectedDoc, borderColor]);
 
+  // Extract headings for Table of Contents
+  useEffect(() => {
+    if (!selectedDoc) return;
+
+    const extractHeadings = () => {
+      const headingElements = document.querySelectorAll(".prose h1, .prose h2, .prose h3");
+      const extractedHeadings: { id: string; text: string; level: number }[] = [];
+
+      headingElements.forEach((heading, index) => {
+        const text = heading.textContent || "";
+        const level = parseInt(heading.tagName.substring(1));
+        const id = `heading-${index}`;
+
+        // Set ID on the heading element for scroll-to functionality
+        heading.id = id;
+
+        extractedHeadings.push({ id, text, level });
+      });
+
+      setHeadings(extractedHeadings);
+    };
+
+    // Run after markdown has rendered
+    const timer = setTimeout(extractHeadings, 400);
+    return () => clearTimeout(timer);
+  }, [selectedDoc]);
+
+  // Track scroll position to highlight active heading in TOC
+  useEffect(() => {
+    if (headings.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 100; // Offset for better UX
+
+      // Find the active heading based on scroll position
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const element = document.getElementById(headings[i].id);
+        if (element && element.offsetTop <= scrollPosition) {
+          setActiveHeading(headings[i].id);
+          return;
+        }
+      }
+
+      // If we haven't found any, set to the first heading
+      if (headings.length > 0) {
+        setActiveHeading(headings[0].id);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Call once on mount
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [headings]);
+
+  // Function to scroll to a heading when clicked in TOC
+  const scrollToHeading = (headingId: string) => {
+    const element = document.getElementById(headingId);
+    if (element) {
+      const yOffset = -80; // Offset for fixed header
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
@@ -232,10 +301,10 @@ export default function RepositoryPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Sidebar - Document List */}
             <div
-              className="lg:col-span-1 rounded-lg p-4"
+              className="lg:col-span-3 rounded-lg p-4"
               style={{
                 backgroundColor: cardBg,
                 border: `1px solid ${borderColor}`,
@@ -264,7 +333,7 @@ export default function RepositoryPage() {
 
             {/* Main Content - Document Viewer */}
             <div
-              className="lg:col-span-3 rounded-lg p-6 sm:p-8"
+              className="lg:col-span-6 rounded-lg p-6 sm:p-8"
               style={{
                 backgroundColor: cardBg,
                 border: `1px solid ${borderColor}`,
@@ -353,6 +422,39 @@ export default function RepositoryPage() {
                 <div className="text-center py-12">
                   <p className="text-lg">Select a document to view</p>
                 </div>
+              )}
+            </div>
+
+            {/* Table of Contents */}
+            <div
+              className="lg:col-span-3 rounded-lg p-4"
+              style={{
+                backgroundColor: cardBg,
+                border: `1px solid ${borderColor}`,
+                maxHeight: "calc(100vh - 200px)",
+                overflowY: "auto",
+              }}
+            >
+              <h2 className="text-lg font-semibold mb-4">Table of Contents</h2>
+              {headings.length > 0 ? (
+                <nav className="space-y-1">
+                  {headings.map((heading) => (
+                    <button
+                      key={heading.id}
+                      onClick={() => scrollToHeading(heading.id)}
+                      className="w-full text-left px-2 py-1.5 rounded text-sm transition-colors hover:opacity-80"
+                      style={{
+                        paddingLeft: `${(heading.level - 1) * 12 + 8}px`,
+                        backgroundColor: activeHeading === heading.id ? borderColor : "transparent",
+                        fontWeight: activeHeading === heading.id ? "600" : "400",
+                      }}
+                    >
+                      {heading.text}
+                    </button>
+                  ))}
+                </nav>
+              ) : (
+                <p className="text-sm opacity-60">No headings found in this document.</p>
               )}
             </div>
           </div>
