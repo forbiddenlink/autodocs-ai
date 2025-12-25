@@ -8,6 +8,56 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "AutoDocs AI - AI-Powered Documentation Platform",
   description: "Automatically generate and maintain code documentation with AI",
+  keywords: [
+    "code documentation",
+    "AI documentation",
+    "automatic documentation",
+    "GitHub documentation",
+    "API documentation generator",
+    "code analysis",
+    "documentation automation",
+  ],
+  authors: [{ name: "AutoDocs AI" }],
+  creator: "AutoDocs AI",
+  publisher: "AutoDocs AI",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "AutoDocs AI - AI-Powered Documentation Platform",
+    description: "Automatically generate and maintain code documentation with AI",
+    url: "/",
+    siteName: "AutoDocs AI",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutoDocs AI - AI-Powered Documentation Platform",
+    description: "Automatically generate and maintain code documentation with AI",
+    creator: "@autodocs_ai",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "google-site-verification-code",
+    yandex: "yandex-verification-code",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({

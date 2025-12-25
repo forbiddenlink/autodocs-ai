@@ -5,6 +5,33 @@ export const metadata: Metadata = {
   title: "AutoDocs AI - AI-Powered Documentation Platform for Your Code",
   description:
     "Automatically generate and maintain comprehensive code documentation for your repositories with AI. Connect your GitHub repos and get instant, up-to-date documentation.",
+  keywords: [
+    "AI documentation generator",
+    "automatic code documentation",
+    "GitHub documentation tool",
+    "code documentation automation",
+    "API documentation generator",
+    "repository documentation",
+    "Claude AI documentation",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "AutoDocs AI - AI-Powered Documentation Platform for Your Code",
+    description:
+      "Automatically generate and maintain comprehensive code documentation for your repositories with AI. Connect your GitHub repos and get instant, up-to-date documentation.",
+    url: "/",
+    siteName: "AutoDocs AI",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutoDocs AI - AI-Powered Documentation Platform for Your Code",
+    description:
+      "Automatically generate and maintain comprehensive code documentation for your repositories with AI. Connect your GitHub repos and get instant, up-to-date documentation.",
+  },
 };
 
 export default function Home() {
