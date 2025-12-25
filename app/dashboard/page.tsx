@@ -2,6 +2,7 @@
 
 import { AuthenticatedNav } from "@/components/AuthenticatedNav";
 import { ErrorState } from "@/components/ErrorState";
+import { AddRepositoryModal } from "@/components/AddRepositoryModal";
 import { useTheme } from "@/components/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [reposLoading, setReposLoading] = useState(false);
   const [reposError, setReposError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Function to fetch repositories (can be called for retry)
   const fetchRepositories = async () => {
@@ -196,7 +198,17 @@ export default function DashboardPage() {
 
         {/* Repository List Section */}
         <section aria-label="Repository list">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Your Repositories</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl sm:text-3xl font-semibold">Your Repositories</h2>
+            {!reposLoading && !reposError && repositories.length > 0 && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+              >
+                Add Repository
+              </button>
+            )}
+          </div>
 
           {/* Loading State */}
           {reposLoading && (
@@ -251,10 +263,7 @@ export default function DashboardPage() {
               </p>
               <button
                 className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
-                onClick={() => {
-                  // TODO: Implement add repository flow
-                  alert("Add repository feature coming soon!");
-                }}
+                onClick={() => setShowAddModal(true)}
               >
                 Add Your First Repository
               </button>
@@ -324,6 +333,16 @@ export default function DashboardPage() {
           )}
         </section>
       </main>
+
+      {/* Add Repository Modal */}
+      <AddRepositoryModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={() => {
+          // Refresh the repository list after adding
+          fetchRepositories();
+        }}
+      />
     </div>
   );
 }
