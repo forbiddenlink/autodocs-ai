@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import { logger } from "../utils/logger.js";
+import { authenticateToken, refreshToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -97,12 +98,48 @@ router.get("/github/callback", async (req, res) => {
  * Returns authentication status for the current session
  */
 router.get("/status", (req, res) => {
-  // For now, return not authenticated
-  // Will be implemented with proper session management in Test #4
+  // Check if user has valid token via authenticateToken middleware
+  // For now, return not authenticated (will be updated when full OAuth is implemented)
   res.json({
     authenticated: false,
     user: null,
   });
+});
+
+/**
+ * POST /auth/refresh
+ * Refresh an expired or expiring token
+ */
+router.post("/refresh", refreshToken);
+
+/**
+ * POST /auth/logout
+ * Logout and invalidate session
+ */
+router.post("/logout", (req, res) => {
+  try {
+    // Clear cookie if using cookie-based auth
+    res.clearCookie("token");
+
+    logger.info("User logged out", {
+      correlationId: req.headers["x-correlation-id"],
+    });
+
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    logger.error("Error during logout", {
+      error: error.message,
+      stack: error.stack,
+      correlationId: req.headers["x-correlation-id"],
+    });
+    res.status(500).json({
+      error: "Logout failed",
+      message: error.message,
+    });
+  }
 });
 
 export default router;
