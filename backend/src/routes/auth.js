@@ -66,6 +66,162 @@ router.get("/github", (req, res) => {
 });
 
 /**
+ * POST /auth/github
+ * Handles OAuth code exchange via POST request (alternative to callback URL)
+ * Accepts OAuth code in request body, exchanges it for access token, and returns session token
+ */
+router.post("/github", async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    // Validate authorization code
+    if (!code) {
+      logger.warn("OAuth POST: No authorization code provided");
+      return res.status(400).json({
+        error: "no_code",
+        message: "Authorization code is required",
+      });
+    }
+
+    // Exchange authorization code for access token
+    logger.info("Exchanging authorization code for access token");
+
+    const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.error) {
+      logger.error("GitHub token exchange failed", {
+        error: tokenData.error,
+        description: tokenData.error_description,
+      });
+      return res.status(400).json({
+        error: "token_exchange_failed",
+        message: tokenData.error_description || "Failed to exchange code for access token",
+      });
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Fetch user data from GitHub
+    logger.info("Fetching user data from GitHub");
+
+    const userResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    const githubUser = await userResponse.json();
+
+    // Fetch user email if not public
+    let userEmail = githubUser.email;
+
+    if (!userEmail) {
+      const emailResponse = await fetch("https://api.github.com/user/emails", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      });
+
+      const emails = await emailResponse.json();
+      const primaryEmail = emails.find((email) => email.primary);
+      userEmail = primaryEmail ? primaryEmail.email : emails[0]?.email;
+    }
+
+    if (!userEmail) {
+      logger.error("Could not retrieve user email from GitHub");
+      return res.status(400).json({
+        error: "no_email",
+        message: "Could not retrieve email from GitHub account",
+      });
+    }
+
+    // Create or update user in database
+    const { createOrUpdateUser } = await import("../services/userService.js");
+
+    let user;
+    try {
+      user = await createOrUpdateUser({
+        githubId: githubUser.id.toString(),
+        email: userEmail,
+        name: githubUser.name || githubUser.login,
+        avatarUrl: githubUser.avatar_url,
+      });
+
+      logger.info("User authenticated successfully", {
+        userId: user.id,
+        githubId: user.github_id,
+        correlationId: req.headers["x-correlation-id"],
+      });
+    } catch (dbError) {
+      // Database unavailable - create mock user for development
+      logger.warn("Database unavailable, creating mock user", {
+        error: dbError.message,
+      });
+
+      user = {
+        id: githubUser.id,
+        github_id: githubUser.id.toString(),
+        email: userEmail,
+        name: githubUser.name || githubUser.login,
+        avatar_url: githubUser.avatar_url,
+      };
+    }
+
+    // Generate JWT token
+    const { generateToken } = await import("../middleware/auth.js");
+    const token = generateToken(user, "7d");
+
+    // Set secure HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Return success response with token and user data
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        githubId: user.github_id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatar_url,
+      },
+    });
+  } catch (error) {
+    logger.error("OAuth POST error", {
+      error: error.message,
+      stack: error.stack,
+      correlationId: req.headers["x-correlation-id"],
+    });
+
+    res.status(500).json({
+      error: "auth_failed",
+      message: "Authentication failed",
+      details: error.message,
+    });
+  }
+});
+
+/**
  * GET /auth/github/callback
  * Handles the OAuth callback from GitHub
  * Exchanges the authorization code for an access token, fetches user data, and creates a session
