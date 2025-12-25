@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 
+// Bundle analyzer
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const nextConfig: NextConfig = {
   // Production optimizations
   reactStrictMode: true,
+
+  // CDN configuration - assets will be served from CDN in production
+  // When deployed to Vercel, this is handled automatically via their CDN
+  // For custom CDN (CloudFlare, AWS CloudFront, etc.), set CDN_URL env var
+  assetPrefix: process.env.CDN_URL || undefined,
 
   // Compress responses (SWC minification is enabled by default in Next.js 16+)
   compress: true,
@@ -57,12 +67,36 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache static assets
+        // Cache static assets (JS, CSS, images)
         source: '/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      {
+        // Cache Next.js static assets
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache images with shorter TTL
+        source: '/:path*.{jpg,jpeg,png,gif,svg,ico,webp,avif}',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
           },
         ],
       },
@@ -72,4 +106,4 @@ const nextConfig: NextConfig = {
   experimental: {},
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

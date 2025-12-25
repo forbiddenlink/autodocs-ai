@@ -14,6 +14,11 @@ import {
   sentryTracingHandler,
   sentryErrorHandler
 } from './config/sentry.js';
+import {
+  metricsMiddleware,
+  metricsEndpoint,
+  getMetricsJSON
+} from './middleware/metrics.js';
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +57,9 @@ app.use(morgan('combined', {
     })
   }
 }));
+
+// Performance monitoring middleware
+app.use(metricsMiddleware);
 
 // Enhanced health check endpoint with comprehensive status checks
 app.get('/health', async (req, res) => {
@@ -130,6 +138,21 @@ app.get('/health', async (req, res) => {
       error: 'Health check failed',
       message: error.message
     });
+  }
+});
+
+// Metrics endpoints
+// Prometheus-compatible metrics endpoint
+app.get('/metrics', metricsEndpoint);
+
+// JSON metrics endpoint for internal dashboards
+app.get('/api/metrics', async (req, res) => {
+  try {
+    const metrics = await getMetricsJSON();
+    res.json(metrics);
+  } catch (error) {
+    logger.error('Error fetching metrics', { error: error.message });
+    res.status(500).json({ error: 'Failed to fetch metrics' });
   }
 });
 
