@@ -46,8 +46,19 @@ export default function DashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error" | "info">("success");
   const [sortOption, setSortOption] = useState<SortOption>("name-asc");
   const [filterOption, setFilterOption] = useState<FilterOption>("all");
+
+  // Helper function to show toast notifications
+  const showToastNotification = (
+    message: string,
+    type: "success" | "error" | "info" = "success"
+  ) => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+  };
 
   // Function to fetch repositories (can be called for retry)
   const fetchRepositories = async () => {
@@ -68,19 +79,24 @@ export default function DashboardPage() {
       } else if (reposResponse.status === 401) {
         // Unauthorized - redirect to login
         setReposError("Your session has expired. Please log in again.");
+        showToastNotification("Session expired. Redirecting to login...", "error");
         setTimeout(() => {
           window.location.href = "/?error=session_expired";
         }, 2000);
       } else if (reposResponse.status === 403) {
         setReposError("You don't have permission to access these repositories.");
+        showToastNotification("Permission denied", "error");
       } else if (reposResponse.status === 404) {
         setReposError("Repository endpoint not found. Please contact support.");
+        showToastNotification("Endpoint not found", "error");
       } else if (reposResponse.status >= 500) {
         setReposError("Server error. Our team has been notified. Please try again later.");
+        showToastNotification("Server error occurred", "error");
       } else {
         // Generic error for other status codes
         const errorData = await reposResponse.json().catch(() => ({}));
         setReposError(errorData.error || "Failed to load repositories. Please try again.");
+        showToastNotification("Failed to load repositories", "error");
       }
     } catch (reposErr) {
       console.error("Error fetching repositories:", reposErr);
@@ -89,8 +105,10 @@ export default function DashboardPage() {
         setReposError(
           "Unable to connect to the server. Please check your internet connection and try again."
         );
+        showToastNotification("Connection failed. Check your network.", "error");
       } else {
         setReposError("An unexpected error occurred. Please try again.");
+        showToastNotification("An unexpected error occurred", "error");
       }
     } finally {
       setReposLoading(false);
@@ -575,18 +593,17 @@ export default function DashboardPage() {
         onClose={() => setShowAddModal(false)}
         onSuccess={(repoName) => {
           // Show success toast
-          setToastMessage(`Successfully added "${repoName}" to your repositories`);
-          setShowToast(true);
+          showToastNotification(`Successfully added "${repoName}" to your repositories`, "success");
           // Refresh the repository list after adding
           fetchRepositories();
         }}
       />
 
-      {/* Success Toast */}
+      {/* Toast Notification */}
       {showToast && (
         <Toast
           message={toastMessage}
-          type="success"
+          type={toastType}
           duration={4000}
           onClose={() => setShowToast(false)}
         />
