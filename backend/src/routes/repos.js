@@ -236,6 +236,259 @@ router.get("/:id", authenticateToken, async (req, res) => {
 });
 
 /**
+ * GET /api/repos/:id/docs
+ * Get all documentation for a specific repository
+ *
+ * Query parameters:
+ *   - type: Filter by document type (readme, api, function, class, architecture)
+ */
+router.get("/:id/docs", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const { type } = req.query;
+
+    if (isNaN(repoId)) {
+      return res.status(400).json({
+        error: "Invalid repository ID",
+      });
+    }
+
+    logger.info("Fetching repository documentation", {
+      userId,
+      repoId,
+      filterType: type,
+    });
+
+    // For development/testing, return mock documentation
+    if (process.env.NODE_ENV !== "production") {
+      const mockDocs = [
+        {
+          id: 1,
+          repoId,
+          path: "README.md",
+          type: "readme",
+          content: `# AutoDocs AI
+
+## Overview
+AI-powered documentation platform that automatically generates and maintains comprehensive code documentation for your repositories.
+
+## Features
+- Automatic code analysis using Tree-sitter
+- AI-powered documentation generation with Claude
+- Real-time updates via GitHub webhooks
+- Interactive chat interface for code queries
+
+## Getting Started
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Architecture
+See the architecture documentation for detailed system design.`,
+          generatedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+          updatedAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+        {
+          id: 2,
+          repoId,
+          path: "api/authentication.md",
+          type: "api",
+          content: `# Authentication API
+
+## POST /api/auth/github
+Handles GitHub OAuth authentication flow.
+
+### Request Body
+\`\`\`json
+{
+  "code": "string"
+}
+\`\`\`
+
+### Response
+\`\`\`json
+{
+  "token": "jwt_token",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "name": "User Name"
+  }
+}
+\`\`\`
+
+### Error Codes
+- 400: Invalid or missing authorization code
+- 500: Authentication failed`,
+          generatedAt: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+          updatedAt: new Date(Date.now() - 7200000).toISOString(),
+        },
+        {
+          id: 3,
+          repoId,
+          path: "functions/authenticateToken.md",
+          type: "function",
+          content: `# authenticateToken
+
+Middleware function that validates JWT tokens from incoming requests.
+
+## Signature
+\`\`\`javascript
+function authenticateToken(req, res, next)
+\`\`\`
+
+## Parameters
+- \`req\` (Request): Express request object
+- \`res\` (Response): Express response object
+- \`next\` (Function): Next middleware function
+
+## Returns
+Calls \`next()\` if authentication succeeds, otherwise sends 401/403 error response.
+
+## Usage
+\`\`\`javascript
+router.get('/protected', authenticateToken, (req, res) => {
+  // req.user is populated with decoded token data
+  res.json({ message: 'Protected route', user: req.user });
+});
+\`\`\``,
+          generatedAt: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
+          updatedAt: new Date(Date.now() - 10800000).toISOString(),
+        },
+        {
+          id: 4,
+          repoId,
+          path: "classes/DatabaseConnection.md",
+          type: "class",
+          content: `# DatabaseConnection
+
+Manages PostgreSQL database connections using connection pooling.
+
+## Properties
+- \`pool\`: pg.Pool - Connection pool instance
+- \`connected\`: boolean - Connection status
+
+## Methods
+
+### constructor(config)
+Initializes the database connection pool.
+
+### async query(sql, params)
+Executes a parameterized SQL query.
+
+**Parameters:**
+- \`sql\` (string): SQL query with placeholders
+- \`params\` (Array): Query parameters
+
+**Returns:** Promise<QueryResult>
+
+### async close()
+Closes all connections in the pool.`,
+          generatedAt: new Date(Date.now() - 14400000).toISOString(), // 4 hours ago
+          updatedAt: new Date(Date.now() - 14400000).toISOString(),
+        },
+        {
+          id: 5,
+          repoId,
+          path: "architecture/system-overview.md",
+          type: "architecture",
+          content: `# System Architecture
+
+## Overview
+AutoDocs AI follows a microservices architecture with separate frontend and backend services.
+
+## Components
+
+### Frontend (Next.js)
+- Server-side rendering
+- API routes for backend proxying
+- React components with TypeScript
+- Tailwind CSS for styling
+
+### Backend (Node.js/Express)
+- RESTful API endpoints
+- GitHub OAuth integration
+- Database connections (PostgreSQL)
+- AI service integration (Claude API)
+
+### Database (PostgreSQL)
+- User accounts and sessions
+- Repository metadata
+- Generated documentation
+- Analysis job queue
+
+## Data Flow
+\`\`\`mermaid
+graph LR
+    A[User] --> B[Next.js Frontend]
+    B --> C[Express Backend]
+    C --> D[PostgreSQL]
+    C --> E[Claude API]
+    C --> F[GitHub API]
+\`\`\`
+
+## Security
+- JWT-based authentication
+- HTTP-only cookies
+- CORS configuration
+- Rate limiting`,
+          generatedAt: new Date(Date.now() - 18000000).toISOString(), // 5 hours ago
+          updatedAt: new Date(Date.now() - 18000000).toISOString(),
+        },
+      ];
+
+      // Filter by type if specified
+      let filteredDocs = mockDocs;
+      if (type) {
+        filteredDocs = mockDocs.filter((doc) => doc.type === type);
+        logger.info("Filtered documentation by type", {
+          userId,
+          repoId,
+          type,
+          count: filteredDocs.length,
+        });
+      }
+
+      logger.info("Returning mock documentation", {
+        userId,
+        repoId,
+        docCount: filteredDocs.length,
+      });
+
+      return res.json({
+        documents: filteredDocs,
+        count: filteredDocs.length,
+        repository: {
+          id: repoId,
+          name: "autodocs-ai",
+        },
+      });
+    }
+
+    // Production: Query database for documents
+    // TODO: Implement database query when database is set up
+
+    res.status(404).json({
+      error: "Repository not found or no documentation available",
+    });
+  } catch (error) {
+    logger.error("Error fetching repository documentation", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id,
+      repoId: req.params.id,
+    });
+
+    res.status(500).json({
+      error: "Failed to fetch documentation",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
  * DELETE /api/repos/:id
  * Remove a repository from tracking
  */
