@@ -62,11 +62,12 @@ export const metadata: Metadata = {
     google: "google-site-verification-code",
     yandex: "yandex-verification-code",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -89,6 +90,49 @@ export default function RootLayout({
                 }
               } catch (e) {}
             `,
+          }}
+        />
+        {/* JSON-LD Structured Data for Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AutoDocs AI",
+              url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+              logo: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/og-image.svg`,
+              description:
+                "AI-powered documentation platform that automatically generates and maintains comprehensive code documentation for your repositories",
+              foundingDate: "2024",
+              sameAs: ["https://github.com/autodocs-ai"],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "Customer Support",
+                email: "support@autodocs.ai",
+              },
+            }),
+          }}
+        />
+        {/* JSON-LD Structured Data for Website */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "AutoDocs AI",
+              url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+              description: "Automatically generate and maintain code documentation with AI",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/search?q={search_term_string}`,
+                },
+                "query-input": "required name=search_term_string",
+              },
+            }),
           }}
         />
       </head>
