@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== "production") {
         github_id: "12345678",
         email: "demo@autodocs.ai",
         name: "Demo User",
-        avatar_url: "https://github.com/identicons/demo.png",
+        avatar_url: "https://avatars.githubusercontent.com/u/1?v=4",
       };
 
       logger.info("Creating dev session for mock user", {
@@ -79,7 +79,7 @@ if (process.env.NODE_ENV !== "production") {
             id: decoded.id,
             name: decoded.name || "Demo User",
             email: decoded.email || "demo@autodocs.ai",
-            avatarUrl: "https://github.com/identicons/demo.png",
+            avatarUrl: "https://avatars.githubusercontent.com/u/1?v=4",
             githubId: decoded.githubId || "12345678",
           },
         });
