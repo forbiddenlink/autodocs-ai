@@ -1,0 +1,2977 @@
+[
+  {
+    "category": "functional",
+    "description": "Landing page loads successfully with all core sections visible",
+    "steps": [
+      "Step 1: Navigate to / (landing page)",
+      "Step 2: Verify page loads without errors",
+      "Step 3: Verify hero section is visible",
+      "Step 4: Verify features section is visible",
+      "Step 5: Verify CTA buttons are present"
+    ],
+    "complexity": "simple",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Landing page has proper responsive design on mobile devices",
+    "steps": [
+      "Step 1: Navigate to landing page",
+      "Step 2: Set viewport to mobile size (375px width)",
+      "Step 3: Take screenshot",
+      "Step 4: Verify navigation is mobile-friendly",
+      "Step 5: Verify content is readable and properly sized"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "GitHub OAuth login flow initiates correctly",
+    "steps": [
+      "Step 1: Navigate to landing page",
+      "Step 2: Click 'Sign in with GitHub' button",
+      "Step 3: Verify redirect to GitHub OAuth page",
+      "Step 4: Verify correct OAuth scopes are requested (repo, user:email)"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Complete GitHub OAuth authentication flow",
+    "steps": [
+      "Step 1: Navigate to landing page",
+      "Step 2: Click 'Sign in with GitHub' button",
+      "Step 3: Authorize application on GitHub",
+      "Step 4: Verify redirect back to application",
+      "Step 5: Verify user is authenticated",
+      "Step 6: Verify redirect to dashboard",
+      "Step 7: Verify user session is created"
+    ],
+    "complexity": "complex",
+    "dependencies": [3],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Dashboard displays after successful authentication",
+    "steps": [
+      "Step 1: Complete GitHub OAuth login",
+      "Step 2: Navigate to /dashboard",
+      "Step 3: Verify dashboard page loads",
+      "Step 4: Verify user profile information is displayed",
+      "Step 5: Verify repository list section is present"
+    ],
+    "complexity": "medium",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Dashboard fetches user's GitHub repositories",
+    "steps": [
+      "Step 1: Login and navigate to dashboard",
+      "Step 2: Wait for repositories to load",
+      "Step 3: Verify API call to /api/repos is made",
+      "Step 4: Verify repository list is displayed",
+      "Step 5: Verify each repository shows name and description",
+      "Step 6: Verify loading state is shown while fetching"
+    ],
+    "complexity": "medium",
+    "dependencies": [5],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can add a repository for documentation",
+    "steps": [
+      "Step 1: Login and navigate to dashboard",
+      "Step 2: Click 'Add Repository' button",
+      "Step 3: Select a repository from the list",
+      "Step 4: Click 'Add' button",
+      "Step 5: Verify POST request to /api/repos",
+      "Step 6: Verify repository appears in tracked list",
+      "Step 7: Verify success notification is shown"
+    ],
+    "complexity": "medium",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository analysis is triggered after adding repository",
+    "steps": [
+      "Step 1: Add a new repository",
+      "Step 2: Verify POST request to /api/repos/:id/analyze",
+      "Step 3: Verify analysis status shows 'analyzing'",
+      "Step 4: Verify progress indicator is displayed",
+      "Step 5: Wait for analysis to complete",
+      "Step 6: Verify status changes to 'completed'",
+      "Step 7: Verify notification of completion"
+    ],
+    "complexity": "complex",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis engine parses JavaScript files correctly",
+    "steps": [
+      "Step 1: Add repository with JavaScript files",
+      "Step 2: Trigger code analysis",
+      "Step 3: Verify Tree-sitter parser is invoked",
+      "Step 4: Verify functions are extracted",
+      "Step 5: Verify classes are extracted",
+      "Step 6: Verify imports/exports are identified",
+      "Step 7: Verify AST is generated",
+      "Step 8: Verify analysis results are stored in database"
+    ],
+    "complexity": "complex",
+    "dependencies": [8],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis engine parses TypeScript files correctly",
+    "steps": [
+      "Step 1: Add repository with TypeScript files",
+      "Step 2: Trigger code analysis",
+      "Step 3: Verify TypeScript parser is used",
+      "Step 4: Verify interfaces are extracted",
+      "Step 5: Verify type definitions are captured",
+      "Step 6: Verify generic types are handled",
+      "Step 7: Verify analysis results are stored"
+    ],
+    "complexity": "complex",
+    "dependencies": [8],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis engine parses Python files correctly",
+    "steps": [
+      "Step 1: Add repository with Python files",
+      "Step 2: Trigger code analysis",
+      "Step 3: Verify Python parser is used",
+      "Step 4: Verify functions and classes are extracted",
+      "Step 5: Verify decorators are captured",
+      "Step 6: Verify docstrings are extracted",
+      "Step 7: Verify analysis results are stored"
+    ],
+    "complexity": "complex",
+    "dependencies": [8],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates README documentation using Claude API",
+    "steps": [
+      "Step 1: Complete code analysis for a repository",
+      "Step 2: Trigger README generation",
+      "Step 3: Verify Claude API is called with code context",
+      "Step 4: Verify README content is generated",
+      "Step 5: Verify README includes project overview",
+      "Step 6: Verify README includes setup instructions",
+      "Step 7: Verify README includes usage examples",
+      "Step 8: Verify README is saved to database",
+      "Step 9: Verify README is displayed in documentation viewer"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates API documentation for endpoints",
+    "steps": [
+      "Step 1: Analyze repository with API endpoints",
+      "Step 2: Trigger API documentation generation",
+      "Step 3: Verify Claude API is called with endpoint details",
+      "Step 4: Verify API docs include endpoint descriptions",
+      "Step 5: Verify request/response schemas are documented",
+      "Step 6: Verify authentication requirements are noted",
+      "Step 7: Verify example requests are generated",
+      "Step 8: Verify API docs are saved and displayed"
+    ],
+    "complexity": "complex",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates function-level documentation",
+    "steps": [
+      "Step 1: Analyze repository with functions",
+      "Step 2: Trigger function documentation generation",
+      "Step 3: Verify each function is documented",
+      "Step 4: Verify parameter descriptions are included",
+      "Step 5: Verify return value documentation is present",
+      "Step 6: Verify usage examples are provided",
+      "Step 7: Verify function docs are linked to source code"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates class-level documentation",
+    "steps": [
+      "Step 1: Analyze repository with classes",
+      "Step 2: Trigger class documentation generation",
+      "Step 3: Verify class purpose is documented",
+      "Step 4: Verify constructor parameters are documented",
+      "Step 5: Verify methods are documented",
+      "Step 6: Verify properties are documented",
+      "Step 7: Verify usage examples are provided"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates architecture diagrams in Mermaid format",
+    "steps": [
+      "Step 1: Complete repository analysis",
+      "Step 2: Trigger architecture diagram generation",
+      "Step 3: Verify Claude API generates Mermaid syntax",
+      "Step 4: Verify diagram shows module relationships",
+      "Step 5: Verify diagram shows data flow",
+      "Step 6: Verify Mermaid code is valid and renderable",
+      "Step 7: Verify diagram is saved with documentation"
+    ],
+    "complexity": "complex",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation viewer displays generated README",
+    "steps": [
+      "Step 1: Login and navigate to dashboard",
+      "Step 2: Click on a documented repository",
+      "Step 3: Navigate to /repos/[id]",
+      "Step 4: Verify README documentation is displayed",
+      "Step 5: Verify markdown is properly rendered",
+      "Step 6: Verify heading hierarchy is preserved"
+    ],
+    "complexity": "medium",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation viewer has table of contents navigation",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: Verify table of contents is visible",
+      "Step 3: Verify TOC lists all major sections",
+      "Step 4: Click on a TOC item",
+      "Step 5: Verify page scrolls to correct section",
+      "Step 6: Verify active section is highlighted in TOC"
+    ],
+    "complexity": "medium",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation viewer has syntax highlighting for code blocks",
+    "steps": [
+      "Step 1: Navigate to documentation with code examples",
+      "Step 2: Locate code block in documentation",
+      "Step 3: Verify syntax highlighting is applied",
+      "Step 4: Verify language-specific highlighting (JS, Python, etc.)",
+      "Step 5: Verify inline code is styled differently"
+    ],
+    "complexity": "simple",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code blocks have copy-to-clipboard functionality",
+    "steps": [
+      "Step 1: Navigate to documentation with code blocks",
+      "Step 2: Hover over a code block",
+      "Step 3: Verify copy button appears",
+      "Step 4: Click copy button",
+      "Step 5: Verify success feedback is shown",
+      "Step 6: Verify code is copied to clipboard"
+    ],
+    "complexity": "simple",
+    "dependencies": [19],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation viewer has working search functionality",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: Locate search input field",
+      "Step 3: Type search query",
+      "Step 4: Verify search results appear in real-time",
+      "Step 5: Verify results are highlighted in content",
+      "Step 6: Click on a search result",
+      "Step 7: Verify navigation to relevant section"
+    ],
+    "complexity": "medium",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search returns results in under 200ms",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: Enter search query",
+      "Step 3: Measure time to display results",
+      "Step 4: Verify response time is under 200ms",
+      "Step 5: Test with multiple search queries",
+      "Step 6: Verify all searches meet performance requirement"
+    ],
+    "complexity": "medium",
+    "dependencies": [21],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Dark mode toggle works across all pages",
+    "steps": [
+      "Step 1: Navigate to any page",
+      "Step 2: Locate dark mode toggle button",
+      "Step 3: Click toggle to enable dark mode",
+      "Step 4: Verify all UI elements switch to dark theme",
+      "Step 5: Navigate to different page",
+      "Step 6: Verify dark mode persists",
+      "Step 7: Toggle back to light mode and verify"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Dark mode has proper contrast and readability",
+    "steps": [
+      "Step 1: Enable dark mode",
+      "Step 2: Navigate through all pages",
+      "Step 3: Take screenshots of each page",
+      "Step 4: Verify text is readable on dark background",
+      "Step 5: Verify code blocks have appropriate colors",
+      "Step 6: Verify buttons and interactive elements are visible"
+    ],
+    "complexity": "medium",
+    "dependencies": [23],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat interface is accessible from repository page",
+    "steps": [
+      "Step 1: Navigate to documented repository",
+      "Step 2: Locate 'Chat' button or link",
+      "Step 3: Click to navigate to /repos/[id]/chat",
+      "Step 4: Verify chat interface loads",
+      "Step 5: Verify chat input field is present",
+      "Step 6: Verify chat history area is present"
+    ],
+    "complexity": "simple",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can send a message in AI chat",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Type a question in chat input",
+      "Step 3: Click send button or press Enter",
+      "Step 4: Verify message appears in chat history",
+      "Step 5: Verify POST request to /api/repos/:id/chat",
+      "Step 6: Verify loading indicator is shown",
+      "Step 7: Verify AI response appears",
+      "Step 8: Verify response is relevant to question"
+    ],
+    "complexity": "medium",
+    "dependencies": [25],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat uses RAG to provide context-aware responses",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Ask specific question about codebase function",
+      "Step 3: Submit question",
+      "Step 4: Verify vector search is performed on embeddings",
+      "Step 5: Verify relevant code chunks are retrieved",
+      "Step 6: Verify Claude API is called with context",
+      "Step 7: Verify response references specific code",
+      "Step 8: Verify response accuracy against actual code"
+    ],
+    "complexity": "complex",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat response time is under 3 seconds",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Send a question",
+      "Step 3: Start timer when message is sent",
+      "Step 4: Stop timer when response starts appearing",
+      "Step 5: Verify response time is under 3 seconds",
+      "Step 6: Test with multiple questions",
+      "Step 7: Verify all responses meet performance requirement"
+    ],
+    "complexity": "medium",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Vector embeddings are generated for code chunks",
+    "steps": [
+      "Step 1: Complete code analysis for repository",
+      "Step 2: Verify code is chunked appropriately",
+      "Step 3: Verify chunks are sent to embedding API",
+      "Step 4: Verify embeddings are generated",
+      "Step 5: Verify embeddings are stored in Pinecone",
+      "Step 6: Verify metadata is attached to each embedding",
+      "Step 7: Query embeddings to verify they're searchable"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "GitHub webhook is set up when repository is added",
+    "steps": [
+      "Step 1: Add a new repository",
+      "Step 2: Verify API call to GitHub to create webhook",
+      "Step 3: Verify webhook URL points to /api/webhooks/github",
+      "Step 4: Verify webhook is configured for push events",
+      "Step 5: Verify webhook secret is set",
+      "Step 6: Verify webhook creation success is logged"
+    ],
+    "complexity": "complex",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "GitHub webhook receives push events",
+    "steps": [
+      "Step 1: Set up webhook for repository",
+      "Step 2: Make a push to the repository",
+      "Step 3: Verify POST request to /api/webhooks/github",
+      "Step 4: Verify webhook signature is validated",
+      "Step 5: Verify push event payload is parsed",
+      "Step 6: Verify changed files are identified",
+      "Step 7: Verify webhook processing is logged"
+    ],
+    "complexity": "complex",
+    "dependencies": [30],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Auto-update system re-analyzes changed files after push",
+    "steps": [
+      "Step 1: Set up repository with webhook",
+      "Step 2: Push changes to specific files",
+      "Step 3: Verify webhook triggers analysis",
+      "Step 4: Verify only changed files are re-analyzed",
+      "Step 5: Verify new analysis results are generated",
+      "Step 6: Verify documentation is regenerated for affected files",
+      "Step 7: Verify embeddings are updated",
+      "Step 8: Verify user is notified of update",
+      "Step 9: Verify last_sync timestamp is updated"
+    ],
+    "complexity": "complex",
+    "dependencies": [31],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Auto-update completes in under 5 minutes for small repositories",
+    "steps": [
+      "Step 1: Use repository with less than 10K lines",
+      "Step 2: Push change to trigger auto-update",
+      "Step 3: Start timer when webhook is received",
+      "Step 4: Monitor update progress",
+      "Step 5: Stop timer when update completes",
+      "Step 6: Verify total time is under 5 minutes",
+      "Step 7: Verify documentation is updated"
+    ],
+    "complexity": "complex",
+    "dependencies": [32],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Update history shows all documentation updates",
+    "steps": [
+      "Step 1: Navigate to repository settings",
+      "Step 2: Locate update history section",
+      "Step 3: Verify list of all updates is shown",
+      "Step 4: Verify each entry shows timestamp",
+      "Step 5: Verify each entry shows trigger (manual/webhook)",
+      "Step 6: Verify each entry shows status",
+      "Step 7: Verify entries are sorted by date (newest first)"
+    ],
+    "complexity": "medium",
+    "dependencies": [32],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository settings page is accessible",
+    "steps": [
+      "Step 1: Navigate to documented repository",
+      "Step 2: Click on 'Settings' button",
+      "Step 3: Navigate to /repos/[id]/settings",
+      "Step 4: Verify settings page loads",
+      "Step 5: Verify repository information is displayed"
+    ],
+    "complexity": "simple",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can manually trigger documentation regeneration",
+    "steps": [
+      "Step 1: Navigate to repository settings",
+      "Step 2: Locate 'Regenerate Documentation' button",
+      "Step 3: Click the button",
+      "Step 4: Verify confirmation dialog appears",
+      "Step 5: Confirm regeneration",
+      "Step 6: Verify POST to /api/repos/:id/analyze",
+      "Step 7: Verify progress indicator is shown",
+      "Step 8: Wait for completion",
+      "Step 9: Verify success notification"
+    ],
+    "complexity": "medium",
+    "dependencies": [35],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can remove a repository",
+    "steps": [
+      "Step 1: Navigate to repository settings",
+      "Step 2: Locate 'Remove Repository' button",
+      "Step 3: Click remove button",
+      "Step 4: Verify warning dialog appears",
+      "Step 5: Confirm removal",
+      "Step 6: Verify DELETE request to /api/repos/:id",
+      "Step 7: Verify redirect to dashboard",
+      "Step 8: Verify repository no longer appears in list"
+    ],
+    "complexity": "medium",
+    "dependencies": [35],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User settings page displays user profile",
+    "steps": [
+      "Step 1: Login to application",
+      "Step 2: Navigate to /settings",
+      "Step 3: Verify settings page loads",
+      "Step 4: Verify user avatar is displayed",
+      "Step 5: Verify user name is displayed",
+      "Step 6: Verify user email is displayed",
+      "Step 7: Verify GitHub username is displayed"
+    ],
+    "complexity": "simple",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can logout from settings page",
+    "steps": [
+      "Step 1: Navigate to user settings",
+      "Step 2: Locate 'Logout' button",
+      "Step 3: Click logout button",
+      "Step 4: Verify session is cleared",
+      "Step 5: Verify redirect to landing page",
+      "Step 6: Verify user is no longer authenticated",
+      "Step 7: Verify attempting to access dashboard redirects to login"
+    ],
+    "complexity": "medium",
+    "dependencies": [38],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database stores user information correctly",
+    "steps": [
+      "Step 1: Complete GitHub OAuth flow",
+      "Step 2: Query users table in PostgreSQL",
+      "Step 3: Verify user record exists",
+      "Step 4: Verify github_id is stored",
+      "Step 5: Verify email is stored",
+      "Step 6: Verify name is stored",
+      "Step 7: Verify avatar_url is stored",
+      "Step 8: Verify created_at timestamp is set"
+    ],
+    "complexity": "medium",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database stores repository information correctly",
+    "steps": [
+      "Step 1: Add a repository",
+      "Step 2: Query repositories table",
+      "Step 3: Verify repository record exists",
+      "Step 4: Verify user_id foreign key is correct",
+      "Step 5: Verify github_repo_id is stored",
+      "Step 6: Verify name and url are stored",
+      "Step 7: Verify last_sync timestamp is set",
+      "Step 8: Verify status field is set"
+    ],
+    "complexity": "medium",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database stores generated documents correctly",
+    "steps": [
+      "Step 1: Generate documentation for repository",
+      "Step 2: Query documents table",
+      "Step 3: Verify document records exist",
+      "Step 4: Verify repo_id foreign key is correct",
+      "Step 5: Verify path field identifies document type",
+      "Step 6: Verify content is stored",
+      "Step 7: Verify type field categorizes document",
+      "Step 8: Verify generated_at timestamp is set"
+    ],
+    "complexity": "medium",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint POST /api/auth/github handles OAuth",
+    "steps": [
+      "Step 1: Send POST request to /api/auth/github with OAuth code",
+      "Step 2: Verify endpoint exchanges code for access token",
+      "Step 3: Verify user info is fetched from GitHub",
+      "Step 4: Verify user is created or updated in database",
+      "Step 5: Verify session token is generated",
+      "Step 6: Verify response includes session token",
+      "Step 7: Verify proper error handling for invalid codes"
+    ],
+    "complexity": "complex",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint GET /api/repos returns user's repositories",
+    "steps": [
+      "Step 1: Authenticate user",
+      "Step 2: Send GET request to /api/repos",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify repositories from database are returned",
+      "Step 5: Verify only user's own repositories are included",
+      "Step 6: Verify response includes all repository fields",
+      "Step 7: Verify response is properly formatted JSON"
+    ],
+    "complexity": "medium",
+    "dependencies": [41],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint POST /api/repos adds new repository",
+    "steps": [
+      "Step 1: Authenticate user",
+      "Step 2: Send POST request with repository data",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify repository is added to database",
+      "Step 5: Verify webhook setup is triggered",
+      "Step 6: Verify analysis is queued",
+      "Step 7: Verify response includes new repository ID",
+      "Step 8: Verify proper validation of input data"
+    ],
+    "complexity": "complex",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint GET /api/repos/:id returns repository details",
+    "steps": [
+      "Step 1: Add a repository",
+      "Step 2: Send GET request to /api/repos/:id",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify user owns the repository",
+      "Step 5: Verify repository details are returned",
+      "Step 6: Verify documents are included in response",
+      "Step 7: Verify 404 error for non-existent repository",
+      "Step 8: Verify 403 error for unauthorized access"
+    ],
+    "complexity": "medium",
+    "dependencies": [45],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint POST /api/repos/:id/analyze triggers analysis",
+    "steps": [
+      "Step 1: Authenticate and add repository",
+      "Step 2: Send POST request to /api/repos/:id/analyze",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify user owns the repository",
+      "Step 5: Verify analysis job is queued",
+      "Step 6: Verify repository status is updated to 'analyzing'",
+      "Step 7: Verify response includes job ID or status",
+      "Step 8: Verify proper error handling"
+    ],
+    "complexity": "complex",
+    "dependencies": [45],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint GET /api/repos/:id/docs returns documentation",
+    "steps": [
+      "Step 1: Generate documentation for repository",
+      "Step 2: Send GET request to /api/repos/:id/docs",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify user owns the repository",
+      "Step 5: Verify all documents are returned",
+      "Step 6: Verify documents are properly formatted",
+      "Step 7: Verify optional filtering by document type works",
+      "Step 8: Verify proper error handling"
+    ],
+    "complexity": "medium",
+    "dependencies": [42],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint POST /api/repos/:id/chat processes chat messages",
+    "steps": [
+      "Step 1: Authenticate with documented repository",
+      "Step 2: Send POST request with chat message",
+      "Step 3: Verify authentication is required",
+      "Step 4: Verify user owns the repository",
+      "Step 5: Verify message is processed",
+      "Step 6: Verify RAG retrieval is performed",
+      "Step 7: Verify Claude API is called",
+      "Step 8: Verify response is returned",
+      "Step 9: Verify chat history is stored"
+    ],
+    "complexity": "complex",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoint POST /api/webhooks/github validates webhook signatures",
+    "steps": [
+      "Step 1: Send POST request to webhook endpoint",
+      "Step 2: Include GitHub webhook signature in headers",
+      "Step 3: Verify signature is validated using webhook secret",
+      "Step 4: Verify request with valid signature is processed",
+      "Step 5: Send request with invalid signature",
+      "Step 6: Verify request is rejected with 401 status",
+      "Step 7: Verify error is logged for invalid signatures"
+    ],
+    "complexity": "complex",
+    "dependencies": [31],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Protected routes redirect unauthenticated users",
+    "steps": [
+      "Step 1: Ensure user is not authenticated",
+      "Step 2: Attempt to navigate to /dashboard",
+      "Step 3: Verify redirect to landing page or login",
+      "Step 4: Attempt to navigate to /repos/[id]",
+      "Step 5: Verify redirect to landing page or login",
+      "Step 6: Attempt to access API endpoints without auth",
+      "Step 7: Verify 401 Unauthorized responses"
+    ],
+    "complexity": "medium",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Session persistence allows user to stay logged in",
+    "steps": [
+      "Step 1: Login to application",
+      "Step 2: Navigate away from application",
+      "Step 3: Close and reopen browser (if cookies persist)",
+      "Step 4: Navigate back to application",
+      "Step 5: Verify user is still authenticated",
+      "Step 6: Verify access to protected routes works",
+      "Step 7: Verify session eventually expires after timeout"
+    ],
+    "complexity": "medium",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Error handling displays user-friendly messages",
+    "steps": [
+      "Step 1: Trigger various error conditions",
+      "Step 2: Verify error messages are displayed",
+      "Step 3: Verify messages are user-friendly (not technical stack traces)",
+      "Step 4: Verify appropriate error for network failures",
+      "Step 5: Verify appropriate error for validation failures",
+      "Step 6: Verify appropriate error for authentication failures"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Loading states are displayed during async operations",
+    "steps": [
+      "Step 1: Trigger async operation (e.g., fetch repositories)",
+      "Step 2: Verify loading indicator appears immediately",
+      "Step 3: Verify content is not shown while loading",
+      "Step 4: Wait for operation to complete",
+      "Step 5: Verify loading indicator disappears",
+      "Step 6: Verify content is displayed",
+      "Step 7: Test with multiple async operations"
+    ],
+    "complexity": "simple",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "UI follows consistent design system using shadcn/ui components",
+    "steps": [
+      "Step 1: Navigate through all pages",
+      "Step 2: Take screenshots of each page",
+      "Step 3: Verify consistent button styles",
+      "Step 4: Verify consistent input field styles",
+      "Step 5: Verify consistent card/container styles",
+      "Step 6: Verify consistent typography",
+      "Step 7: Verify consistent spacing and layout"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Responsive design works on tablet devices",
+    "steps": [
+      "Step 1: Set viewport to tablet size (768px width)",
+      "Step 2: Navigate through all pages",
+      "Step 3: Take screenshots",
+      "Step 4: Verify layout adapts appropriately",
+      "Step 5: Verify all interactive elements are accessible",
+      "Step 6: Verify text is readable",
+      "Step 7: Verify navigation works on tablet size"
+    ],
+    "complexity": "medium",
+    "dependencies": [2],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Responsive design works on desktop devices",
+    "steps": [
+      "Step 1: Set viewport to desktop size (1920px width)",
+      "Step 2: Navigate through all pages",
+      "Step 3: Take screenshots",
+      "Step 4: Verify layout uses available space effectively",
+      "Step 5: Verify content is not stretched awkwardly",
+      "Step 6: Verify sidebar navigation works",
+      "Step 7: Verify multi-column layouts where appropriate"
+    ],
+    "complexity": "medium",
+    "dependencies": [2],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Color scheme follows Tailwind CSS design tokens",
+    "steps": [
+      "Step 1: Inspect application styles",
+      "Step 2: Verify primary colors use Tailwind classes",
+      "Step 3: Verify semantic colors (success, error, warning)",
+      "Step 4: Verify neutral colors for backgrounds",
+      "Step 5: Verify accent colors are consistent",
+      "Step 6: Take screenshots for visual verification"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Typography is readable and hierarchical",
+    "steps": [
+      "Step 1: Navigate through application",
+      "Step 2: Verify heading sizes create clear hierarchy (h1 > h2 > h3)",
+      "Step 3: Verify body text is readable size (16px minimum)",
+      "Step 4: Verify line height is appropriate (1.5-1.7)",
+      "Step 5: Verify font weights distinguish emphasis",
+      "Step 6: Take screenshots for verification"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Interactive elements have proper hover states",
+    "steps": [
+      "Step 1: Navigate to pages with buttons",
+      "Step 2: Hover over buttons",
+      "Step 3: Verify visual feedback on hover",
+      "Step 4: Hover over links",
+      "Step 5: Verify link hover states",
+      "Step 6: Test other interactive elements (cards, etc.)",
+      "Step 7: Take screenshots of hover states"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Focus states are visible for keyboard navigation",
+    "steps": [
+      "Step 1: Navigate application using Tab key",
+      "Step 2: Verify focus ring is visible on buttons",
+      "Step 3: Verify focus ring is visible on inputs",
+      "Step 4: Verify focus ring is visible on links",
+      "Step 5: Verify focus order is logical",
+      "Step 6: Verify focus states meet accessibility standards"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Application handles large repositories (100K lines)",
+    "steps": [
+      "Step 1: Add repository with approximately 100K lines",
+      "Step 2: Trigger analysis",
+      "Step 3: Monitor memory usage",
+      "Step 4: Monitor CPU usage",
+      "Step 5: Verify analysis completes without errors",
+      "Step 6: Verify documentation is generated",
+      "Step 7: Verify search and chat still work",
+      "Step 8: Verify performance is acceptable",
+      "Step 9: Verify no memory leaks"
+    ],
+    "complexity": "complex",
+    "dependencies": [8],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Concurrent users can use the system simultaneously",
+    "steps": [
+      "Step 1: Simulate multiple users logging in",
+      "Step 2: Each user adds a repository",
+      "Step 3: Trigger analysis for all repositories",
+      "Step 4: Verify all analyses run without interference",
+      "Step 5: Verify each user sees only their own repos",
+      "Step 6: Verify no data leakage between users",
+      "Step 7: Verify system remains responsive"
+    ],
+    "complexity": "complex",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Rate limiting prevents API abuse",
+    "steps": [
+      "Step 1: Make rapid successive API requests",
+      "Step 2: Verify rate limit threshold",
+      "Step 3: Verify 429 Too Many Requests response",
+      "Step 4: Verify retry-after header is provided",
+      "Step 5: Wait for rate limit reset",
+      "Step 6: Verify requests work again",
+      "Step 7: Verify rate limits are per-user"
+    ],
+    "complexity": "medium",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Claude API errors are handled gracefully",
+    "steps": [
+      "Step 1: Trigger documentation generation",
+      "Step 2: Simulate Claude API failure",
+      "Step 3: Verify error is caught",
+      "Step 4: Verify user is notified",
+      "Step 5: Verify partial results are saved if available",
+      "Step 6: Verify retry mechanism is triggered",
+      "Step 7: Verify maximum retry attempts are respected"
+    ],
+    "complexity": "complex",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "GitHub API errors are handled gracefully",
+    "steps": [
+      "Step 1: Attempt to fetch repositories",
+      "Step 2: Simulate GitHub API failure",
+      "Step 3: Verify error is caught",
+      "Step 4: Verify user-friendly error message",
+      "Step 5: Verify retry mechanism",
+      "Step 6: Verify fallback behavior if appropriate",
+      "Step 7: Verify errors are logged"
+    ],
+    "complexity": "medium",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database connection errors are handled",
+    "steps": [
+      "Step 1: Trigger database operation",
+      "Step 2: Simulate database connection failure",
+      "Step 3: Verify error is caught",
+      "Step 4: Verify service degrades gracefully",
+      "Step 5: Verify connection retry logic",
+      "Step 6: Verify user is informed of temporary issue",
+      "Step 7: Verify critical errors are logged and alerted"
+    ],
+    "complexity": "complex",
+    "dependencies": [40],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Pinecone vector database stores embeddings correctly",
+    "steps": [
+      "Step 1: Generate embeddings for code chunks",
+      "Step 2: Insert embeddings into Pinecone",
+      "Step 3: Verify upsert operation succeeds",
+      "Step 4: Query Pinecone for specific embedding",
+      "Step 5: Verify embedding is retrievable",
+      "Step 6: Verify metadata is attached correctly",
+      "Step 7: Verify vector dimension is correct",
+      "Step 8: Verify namespace is used appropriately"
+    ],
+    "complexity": "complex",
+    "dependencies": [29],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Vector similarity search returns relevant results",
+    "steps": [
+      "Step 1: Store multiple code chunk embeddings",
+      "Step 2: Generate query embedding for search term",
+      "Step 3: Perform similarity search in Pinecone",
+      "Step 4: Verify top-k results are returned",
+      "Step 5: Verify results are ranked by similarity score",
+      "Step 6: Verify returned chunks are actually relevant",
+      "Step 7: Test with various query types"
+    ],
+    "complexity": "complex",
+    "dependencies": [68],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation supports multiple programming languages",
+    "steps": [
+      "Step 1: Add repository with multiple languages (JS, Python, Go, etc.)",
+      "Step 2: Trigger documentation generation",
+      "Step 3: Verify each language is detected",
+      "Step 4: Verify appropriate parser is used for each",
+      "Step 5: Verify documentation is generated for all languages",
+      "Step 6: Verify language-specific features are handled",
+      "Step 7: Verify cross-language references work"
+    ],
+    "complexity": "complex",
+    "dependencies": [9, 10, 11],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "MDX rendering works for documentation content",
+    "steps": [
+      "Step 1: Create documentation with MDX features",
+      "Step 2: Navigate to documentation viewer",
+      "Step 3: Verify standard Markdown renders correctly",
+      "Step 4: Verify MDX components render if used",
+      "Step 5: Verify JSX in MDX works",
+      "Step 6: Verify imports in MDX work",
+      "Step 7: Verify frontmatter is parsed"
+    ],
+    "complexity": "medium",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Mermaid diagrams render correctly in documentation",
+    "steps": [
+      "Step 1: Generate documentation with Mermaid diagrams",
+      "Step 2: Navigate to documentation viewer",
+      "Step 3: Locate Mermaid diagram in content",
+      "Step 4: Verify Mermaid syntax is rendered as diagram",
+      "Step 5: Verify diagram is interactive (if applicable)",
+      "Step 6: Verify diagram is responsive",
+      "Step 7: Verify multiple diagrams on same page work"
+    ],
+    "complexity": "medium",
+    "dependencies": [16],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation versioning tracks changes over time",
+    "steps": [
+      "Step 1: Generate initial documentation",
+      "Step 2: Note version or timestamp",
+      "Step 3: Update repository code",
+      "Step 4: Trigger documentation regeneration",
+      "Step 5: Verify new version is created",
+      "Step 6: Verify ability to view previous versions",
+      "Step 7: Verify diff between versions",
+      "Step 8: Verify version history is maintained"
+    ],
+    "complexity": "complex",
+    "dependencies": [32],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis identifies module dependencies",
+    "steps": [
+      "Step 1: Analyze repository with import/export statements",
+      "Step 2: Verify imports are identified",
+      "Step 3: Verify exports are identified",
+      "Step 4: Verify dependency graph is built",
+      "Step 5: Verify circular dependencies are detected",
+      "Step 6: Verify external dependencies are distinguished from internal",
+      "Step 7: Verify dependency information is stored"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis extracts function parameters and return types",
+    "steps": [
+      "Step 1: Analyze functions with typed parameters",
+      "Step 2: Verify parameter names are extracted",
+      "Step 3: Verify parameter types are extracted",
+      "Step 4: Verify return types are extracted",
+      "Step 5: Verify default parameter values are captured",
+      "Step 6: Verify rest parameters are handled",
+      "Step 7: Verify information is used in documentation"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis extracts inline comments",
+    "steps": [
+      "Step 1: Analyze code with various comment types",
+      "Step 2: Verify single-line comments are extracted",
+      "Step 3: Verify multi-line comments are extracted",
+      "Step 4: Verify JSDoc/docstring comments are extracted",
+      "Step 5: Verify comments are associated with correct code elements",
+      "Step 6: Verify extracted comments are used in documentation"
+    ],
+    "complexity": "medium",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI maintains consistent documentation style",
+    "steps": [
+      "Step 1: Generate documentation for multiple files",
+      "Step 2: Review generated content",
+      "Step 3: Verify consistent tone across all docs",
+      "Step 4: Verify consistent structure and sections",
+      "Step 5: Verify consistent terminology",
+      "Step 6: Verify consistent formatting",
+      "Step 7: Verify style guidelines are followed"
+    ],
+    "complexity": "complex",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI generates practical usage examples",
+    "steps": [
+      "Step 1: Generate documentation for functions/classes",
+      "Step 2: Locate usage examples in generated docs",
+      "Step 3: Verify examples are present",
+      "Step 4: Verify examples are syntactically correct",
+      "Step 5: Verify examples demonstrate actual use cases",
+      "Step 6: Verify examples use realistic data",
+      "Step 7: Verify examples are properly formatted"
+    ],
+    "complexity": "complex",
+    "dependencies": [14],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat can answer questions about specific functions",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Ask about a specific function (e.g., 'What does calculateTotal do?')",
+      "Step 3: Submit question",
+      "Step 4: Verify response mentions the function",
+      "Step 5: Verify response explains function purpose",
+      "Step 6: Verify response includes parameter information",
+      "Step 7: Verify response is accurate based on code"
+    ],
+    "complexity": "complex",
+    "dependencies": [27],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat can explain architectural patterns",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Ask about architecture (e.g., 'Explain the authentication flow')",
+      "Step 3: Submit question",
+      "Step 4: Verify response provides high-level overview",
+      "Step 5: Verify response mentions relevant components",
+      "Step 6: Verify response explains interactions",
+      "Step 7: Verify response is coherent and helpful"
+    ],
+    "complexity": "complex",
+    "dependencies": [27],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat can suggest improvements to code",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Ask for suggestions (e.g., 'How can I improve error handling?')",
+      "Step 3: Submit question",
+      "Step 4: Verify response provides specific suggestions",
+      "Step 5: Verify suggestions reference actual code",
+      "Step 6: Verify suggestions are practical",
+      "Step 7: Verify suggestions include code examples"
+    ],
+    "complexity": "complex",
+    "dependencies": [27],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "AI chat maintains conversation context",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Ask initial question",
+      "Step 3: Wait for response",
+      "Step 4: Ask follow-up question referencing previous answer",
+      "Step 5: Verify follow-up response shows contextual awareness",
+      "Step 6: Ask another follow-up",
+      "Step 7: Verify multi-turn conversation works",
+      "Step 8: Verify context window is managed appropriately"
+    ],
+    "complexity": "complex",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search functionality searches across all documentation types",
+    "steps": [
+      "Step 1: Generate multiple document types (README, API, functions)",
+      "Step 2: Navigate to documentation viewer",
+      "Step 3: Enter search query matching content in different doc types",
+      "Step 4: Verify results from all document types appear",
+      "Step 5: Verify results indicate which document they're from",
+      "Step 6: Verify clicking result navigates to correct document"
+    ],
+    "complexity": "medium",
+    "dependencies": [21],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search supports fuzzy matching",
+    "steps": [
+      "Step 1: Navigate to search",
+      "Step 2: Enter query with typo or partial match",
+      "Step 3: Verify relevant results are still returned",
+      "Step 4: Test with various misspellings",
+      "Step 5: Verify relevance ranking",
+      "Step 6: Verify exact matches rank higher than fuzzy matches"
+    ],
+    "complexity": "medium",
+    "dependencies": [21],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Search highlights matched terms in results",
+    "steps": [
+      "Step 1: Perform search with specific term",
+      "Step 2: View search results",
+      "Step 3: Verify matched terms are highlighted",
+      "Step 4: Verify highlights use distinct styling",
+      "Step 5: Navigate to result",
+      "Step 6: Verify term is highlighted in full content"
+    ],
+    "complexity": "simple",
+    "dependencies": [21],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository list shows sync status for each repository",
+    "steps": [
+      "Step 1: Navigate to dashboard with multiple repositories",
+      "Step 2: Verify status indicator for each repository",
+      "Step 3: Verify possible statuses: pending, analyzing, completed, error",
+      "Step 4: Verify appropriate icon or color for each status",
+      "Step 5: Verify last sync timestamp is displayed",
+      "Step 6: Verify status updates in real-time if analysis is ongoing"
+    ],
+    "complexity": "medium",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository list can be filtered by status",
+    "steps": [
+      "Step 1: Navigate to dashboard with multiple repositories",
+      "Step 2: Locate filter controls",
+      "Step 3: Select 'Completed' filter",
+      "Step 4: Verify only completed repositories are shown",
+      "Step 5: Select 'Analyzing' filter",
+      "Step 6: Verify only analyzing repositories are shown",
+      "Step 7: Clear filter and verify all repositories appear"
+    ],
+    "complexity": "simple",
+    "dependencies": [86],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository list can be sorted by name or last sync",
+    "steps": [
+      "Step 1: Navigate to dashboard",
+      "Step 2: Click sort by name",
+      "Step 3: Verify repositories are alphabetically sorted",
+      "Step 4: Click again to reverse sort",
+      "Step 5: Click sort by last sync",
+      "Step 6: Verify repositories sorted by sync timestamp",
+      "Step 7: Verify most recently synced appears first"
+    ],
+    "complexity": "simple",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository card shows key metrics (files, lines, last update)",
+    "steps": [
+      "Step 1: Navigate to dashboard",
+      "Step 2: View repository cards",
+      "Step 3: Verify each card shows file count",
+      "Step 4: Verify each card shows line count",
+      "Step 5: Verify each card shows last update time",
+      "Step 6: Verify metrics are accurate",
+      "Step 7: Verify metrics update after re-analysis"
+    ],
+    "complexity": "medium",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Repository cards have consistent and attractive design",
+    "steps": [
+      "Step 1: Navigate to dashboard",
+      "Step 2: Take screenshot of repository cards",
+      "Step 3: Verify cards have consistent styling",
+      "Step 4: Verify cards have appropriate spacing",
+      "Step 5: Verify cards have hover effects",
+      "Step 6: Verify card layout is responsive",
+      "Step 7: Verify cards use shadcn/ui components"
+    ],
+    "complexity": "simple",
+    "dependencies": [6],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Progress indicator shows analysis stages",
+    "steps": [
+      "Step 1: Trigger repository analysis",
+      "Step 2: Observe progress indicator",
+      "Step 3: Verify stages are shown (cloning, parsing, generating, etc.)",
+      "Step 4: Verify current stage is highlighted",
+      "Step 5: Verify percentage or step count is shown",
+      "Step 6: Verify progress updates in real-time",
+      "Step 7: Verify completion is clearly indicated"
+    ],
+    "complexity": "medium",
+    "dependencies": [8],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Error states show helpful error messages with retry option",
+    "steps": [
+      "Step 1: Trigger operation that will fail",
+      "Step 2: Wait for error to occur",
+      "Step 3: Verify error message is displayed",
+      "Step 4: Verify error message is specific and helpful",
+      "Step 5: Verify 'Retry' button is provided",
+      "Step 6: Click retry button",
+      "Step 7: Verify operation is retried"
+    ],
+    "complexity": "medium",
+    "dependencies": [53],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Toast notifications appear for important events",
+    "steps": [
+      "Step 1: Trigger various operations (add repo, complete analysis, etc.)",
+      "Step 2: Verify toast notification appears for each",
+      "Step 3: Verify toasts have appropriate message",
+      "Step 4: Verify toasts have appropriate type (success, error, info)",
+      "Step 5: Verify toasts auto-dismiss after timeout",
+      "Step 6: Verify toasts can be manually dismissed",
+      "Step 7: Verify multiple toasts stack appropriately"
+    ],
+    "complexity": "simple",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Toast notifications have proper styling and animation",
+    "steps": [
+      "Step 1: Trigger toast notification",
+      "Step 2: Observe appearance animation",
+      "Step 3: Verify smooth slide-in or fade-in",
+      "Step 4: Verify toast is positioned correctly (top-right)",
+      "Step 5: Verify toast styling is consistent with design system",
+      "Step 6: Observe dismissal animation",
+      "Step 7: Take screenshot of toast for verification"
+    ],
+    "complexity": "simple",
+    "dependencies": [93],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Navigation menu highlights current page",
+    "steps": [
+      "Step 1: Navigate to dashboard",
+      "Step 2: Verify dashboard link is highlighted in navigation",
+      "Step 3: Navigate to settings",
+      "Step 4: Verify settings link is highlighted",
+      "Step 5: Navigate to repository",
+      "Step 6: Verify appropriate nav item is highlighted",
+      "Step 7: Verify highlighting uses distinct visual style"
+    ],
+    "complexity": "simple",
+    "dependencies": [5],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Breadcrumb navigation shows current location",
+    "steps": [
+      "Step 1: Navigate to nested page (e.g., /repos/[id]/chat)",
+      "Step 2: Locate breadcrumb navigation",
+      "Step 3: Verify breadcrumb shows path hierarchy",
+      "Step 4: Click on breadcrumb item",
+      "Step 5: Verify navigation to that level",
+      "Step 6: Verify breadcrumb updates when navigating",
+      "Step 7: Verify home/dashboard link in breadcrumb"
+    ],
+    "complexity": "medium",
+    "dependencies": [25],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Back button returns to previous page",
+    "steps": [
+      "Step 1: Navigate through multiple pages",
+      "Step 2: Locate back button (browser or in-app)",
+      "Step 3: Click back button",
+      "Step 4: Verify navigation to previous page",
+      "Step 5: Verify page state is preserved if applicable",
+      "Step 6: Click back multiple times",
+      "Step 7: Verify navigation history is maintained"
+    ],
+    "complexity": "simple",
+    "dependencies": [5],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Empty states show helpful messages and actions",
+    "steps": [
+      "Step 1: Login with account that has no repositories",
+      "Step 2: Navigate to dashboard",
+      "Step 3: Verify empty state message is shown",
+      "Step 4: Verify message is encouraging and helpful",
+      "Step 5: Verify 'Add Repository' button is prominent",
+      "Step 6: Test other empty states (no docs, no chat history)",
+      "Step 7: Verify all empty states are well-designed"
+    ],
+    "complexity": "simple",
+    "dependencies": [5],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Empty states have engaging illustrations or icons",
+    "steps": [
+      "Step 1: View various empty states",
+      "Step 2: Take screenshots",
+      "Step 3: Verify each has appropriate icon or illustration",
+      "Step 4: Verify visuals are consistent with design system",
+      "Step 5: Verify visuals are not overwhelming",
+      "Step 6: Verify visuals aid understanding"
+    ],
+    "complexity": "simple",
+    "dependencies": [98],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation can be exported as PDF",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: Locate 'Export' or 'Download' button",
+      "Step 3: Select PDF format",
+      "Step 4: Click export",
+      "Step 5: Verify PDF is generated",
+      "Step 6: Download and open PDF",
+      "Step 7: Verify formatting is preserved",
+      "Step 8: Verify all content is included"
+    ],
+    "complexity": "complex",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation can be exported as Markdown",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: Select Markdown export format",
+      "Step 3: Click export",
+      "Step 4: Verify Markdown file is downloaded",
+      "Step 5: Open Markdown file",
+      "Step 6: Verify proper Markdown syntax",
+      "Step 7: Verify all content is included"
+    ],
+    "complexity": "medium",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can share documentation via public link",
+    "steps": [
+      "Step 1: Navigate to repository settings",
+      "Step 2: Locate 'Share' or 'Public Link' option",
+      "Step 3: Enable public access",
+      "Step 4: Verify public link is generated",
+      "Step 5: Copy link and open in incognito/private window",
+      "Step 6: Verify documentation is accessible without login",
+      "Step 7: Disable public access and verify link no longer works"
+    ],
+    "complexity": "medium",
+    "dependencies": [35],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Public documentation links have view-only permissions",
+    "steps": [
+      "Step 1: Create public link for repository",
+      "Step 2: Access link without authentication",
+      "Step 3: Verify documentation is viewable",
+      "Step 4: Verify edit controls are not present",
+      "Step 5: Verify settings are not accessible",
+      "Step 6: Attempt to access API directly",
+      "Step 7: Verify write operations are blocked"
+    ],
+    "complexity": "medium",
+    "dependencies": [102],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Analytics track documentation views",
+    "steps": [
+      "Step 1: Navigate to documentation viewer",
+      "Step 2: View various documentation pages",
+      "Step 3: Navigate to repository settings or analytics",
+      "Step 4: Verify view counts are tracked",
+      "Step 5: Verify views are associated with pages",
+      "Step 6: Verify timestamp of views",
+      "Step 7: Verify analytics dashboard displays data"
+    ],
+    "complexity": "complex",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Analytics show most viewed documentation pages",
+    "steps": [
+      "Step 1: Generate analytics data with multiple page views",
+      "Step 2: Navigate to analytics dashboard",
+      "Step 3: Verify 'Most Viewed' section exists",
+      "Step 4: Verify pages are ranked by view count",
+      "Step 5: Verify view counts are displayed",
+      "Step 6: Verify ability to click through to pages",
+      "Step 7: Verify data updates over time"
+    ],
+    "complexity": "medium",
+    "dependencies": [104],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Form validation provides immediate feedback",
+    "steps": [
+      "Step 1: Navigate to form (e.g., add repository)",
+      "Step 2: Enter invalid data in field",
+      "Step 3: Tab out of field or trigger validation",
+      "Step 4: Verify validation error appears immediately",
+      "Step 5: Verify error message is specific and helpful",
+      "Step 6: Correct the error",
+      "Step 7: Verify error message disappears",
+      "Step 8: Verify field shows valid state"
+    ],
+    "complexity": "simple",
+    "dependencies": [7],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Form error states have clear visual indicators",
+    "steps": [
+      "Step 1: Trigger form validation errors",
+      "Step 2: Take screenshot of error states",
+      "Step 3: Verify error fields have red border or indicator",
+      "Step 4: Verify error messages are visible and nearby",
+      "Step 5: Verify error icon is present",
+      "Step 6: Verify overall form indicates there are errors",
+      "Step 7: Verify consistent error styling across forms"
+    ],
+    "complexity": "simple",
+    "dependencies": [106],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Required fields are clearly marked",
+    "steps": [
+      "Step 1: Navigate to any form",
+      "Step 2: Verify required fields have asterisk or indicator",
+      "Step 3: Verify legend/note explains required field marker",
+      "Step 4: Attempt to submit form with required fields empty",
+      "Step 5: Verify validation prevents submission",
+      "Step 6: Verify clear feedback about missing required fields"
+    ],
+    "complexity": "simple",
+    "dependencies": [106],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Keyboard shortcuts enhance productivity",
+    "steps": [
+      "Step 1: Navigate to application",
+      "Step 2: Press '/' or 'Ctrl+K' to focus search",
+      "Step 3: Verify search is focused",
+      "Step 4: Try other shortcuts (e.g., '?' for help)",
+      "Step 5: Verify shortcuts modal or hint system",
+      "Step 6: Test navigation shortcuts if applicable",
+      "Step 7: Verify shortcuts work across pages"
+    ],
+    "complexity": "medium",
+    "dependencies": [21],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Command palette provides quick access to features",
+    "steps": [
+      "Step 1: Press Ctrl+K or Cmd+K",
+      "Step 2: Verify command palette opens",
+      "Step 3: Type to search available commands",
+      "Step 4: Verify commands are filtered as you type",
+      "Step 5: Select a command",
+      "Step 6: Verify command executes or navigates appropriately",
+      "Step 7: Test various command types (navigation, actions)"
+    ],
+    "complexity": "complex",
+    "dependencies": [109],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Command palette has intuitive design",
+    "steps": [
+      "Step 1: Open command palette",
+      "Step 2: Take screenshot",
+      "Step 3: Verify modal/overlay styling is appropriate",
+      "Step 4: Verify commands are easy to read",
+      "Step 5: Verify keyboard hints are shown (e.g., 'Enter to select')",
+      "Step 6: Verify icons or categories for commands",
+      "Step 7: Verify search input is clearly focused"
+    ],
+    "complexity": "simple",
+    "dependencies": [110],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can customize documentation template preferences",
+    "steps": [
+      "Step 1: Navigate to user settings",
+      "Step 2: Locate documentation preferences section",
+      "Step 3: Modify template options (e.g., sections to include)",
+      "Step 4: Save preferences",
+      "Step 5: Generate new documentation",
+      "Step 6: Verify documentation follows custom template",
+      "Step 7: Verify preferences persist across sessions"
+    ],
+    "complexity": "complex",
+    "dependencies": [38],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can set documentation tone preference (formal/casual)",
+    "steps": [
+      "Step 1: Navigate to settings",
+      "Step 2: Locate tone preference setting",
+      "Step 3: Select 'Formal' tone",
+      "Step 4: Generate documentation",
+      "Step 5: Verify documentation uses formal language",
+      "Step 6: Change to 'Casual' tone",
+      "Step 7: Regenerate documentation",
+      "Step 8: Verify documentation uses casual language"
+    ],
+    "complexity": "complex",
+    "dependencies": [112],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can specify documentation audience level",
+    "steps": [
+      "Step 1: Navigate to documentation preferences",
+      "Step 2: Select audience level (beginner/intermediate/expert)",
+      "Step 3: Generate documentation",
+      "Step 4: Verify documentation complexity matches audience",
+      "Step 5: Verify appropriate level of detail",
+      "Step 6: Verify explanations match audience knowledge",
+      "Step 7: Test with different audience levels"
+    ],
+    "complexity": "complex",
+    "dependencies": [112],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "OAuth token refresh works seamlessly",
+    "steps": [
+      "Step 1: Login with GitHub OAuth",
+      "Step 2: Wait for access token to near expiration",
+      "Step 3: Perform action requiring GitHub API",
+      "Step 4: Verify token is refreshed automatically",
+      "Step 5: Verify action completes successfully",
+      "Step 6: Verify user is not logged out",
+      "Step 7: Verify refresh is logged"
+    ],
+    "complexity": "complex",
+    "dependencies": [4],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Expired sessions redirect to login gracefully",
+    "steps": [
+      "Step 1: Login to application",
+      "Step 2: Wait for session to expire or manually expire",
+      "Step 3: Attempt to perform authenticated action",
+      "Step 4: Verify user is redirected to login",
+      "Step 5: Verify helpful message about session expiration",
+      "Step 6: Login again",
+      "Step 7: Verify redirect back to original intended action if applicable"
+    ],
+    "complexity": "medium",
+    "dependencies": [52],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API endpoints return proper HTTP status codes",
+    "steps": [
+      "Step 1: Call successful API endpoint",
+      "Step 2: Verify 200 OK status",
+      "Step 3: Call endpoint with invalid data",
+      "Step 4: Verify 400 Bad Request status",
+      "Step 5: Call protected endpoint without auth",
+      "Step 6: Verify 401 Unauthorized status",
+      "Step 7: Call endpoint for non-existent resource",
+      "Step 8: Verify 404 Not Found status",
+      "Step 9: Test other scenarios for proper status codes"
+    ],
+    "complexity": "medium",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API responses include proper CORS headers",
+    "steps": [
+      "Step 1: Make API request from different origin",
+      "Step 2: Verify Access-Control-Allow-Origin header",
+      "Step 3: Make preflight OPTIONS request",
+      "Step 4: Verify appropriate CORS headers in response",
+      "Step 5: Verify credentials handling if applicable",
+      "Step 6: Test with various origins",
+      "Step 7: Verify CORS errors are properly handled"
+    ],
+    "complexity": "medium",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API implements request validation middleware",
+    "steps": [
+      "Step 1: Send API request with invalid JSON",
+      "Step 2: Verify 400 error with helpful message",
+      "Step 3: Send request missing required fields",
+      "Step 4: Verify validation error response",
+      "Step 5: Send request with wrong data types",
+      "Step 6: Verify type validation works",
+      "Step 7: Verify validation happens before business logic"
+    ],
+    "complexity": "medium",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "API logging captures requests and responses",
+    "steps": [
+      "Step 1: Make various API requests",
+      "Step 2: Check application logs",
+      "Step 3: Verify requests are logged with method and path",
+      "Step 4: Verify response status is logged",
+      "Step 5: Verify timing information is logged",
+      "Step 6: Verify errors are logged with details",
+      "Step 7: Verify sensitive data is redacted in logs"
+    ],
+    "complexity": "medium",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Security headers are set on all responses",
+    "steps": [
+      "Step 1: Make request to application",
+      "Step 2: Inspect response headers",
+      "Step 3: Verify X-Content-Type-Options: nosniff",
+      "Step 4: Verify X-Frame-Options: DENY or SAMEORIGIN",
+      "Step 5: Verify Content-Security-Policy header",
+      "Step 6: Verify Strict-Transport-Security header",
+      "Step 7: Verify X-XSS-Protection header"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Secrets and API keys are stored securely",
+    "steps": [
+      "Step 1: Inspect codebase",
+      "Step 2: Verify no hardcoded secrets in source",
+      "Step 3: Verify environment variables are used",
+      "Step 4: Verify secrets are not logged",
+      "Step 5: Verify secrets are not exposed in client-side code",
+      "Step 6: Verify secure storage mechanism for sensitive data",
+      "Step 7: Verify database credentials are protected"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "SQL injection prevention is implemented",
+    "steps": [
+      "Step 1: Attempt SQL injection via input fields",
+      "Step 2: Verify parameterized queries are used",
+      "Step 3: Verify ORM prevents SQL injection",
+      "Step 4: Try various injection patterns",
+      "Step 5: Verify no raw SQL with string concatenation",
+      "Step 6: Verify all database queries are safe",
+      "Step 7: Verify error messages don't reveal DB structure"
+    ],
+    "complexity": "complex",
+    "dependencies": [40],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "XSS protection prevents script injection",
+    "steps": [
+      "Step 1: Attempt to inject script tags via inputs",
+      "Step 2: Verify input is sanitized",
+      "Step 3: Verify output is properly escaped",
+      "Step 4: Test with various XSS payloads",
+      "Step 5: Verify CSP headers help prevent XSS",
+      "Step 6: Verify framework auto-escaping is enabled",
+      "Step 7: Test in documentation rendering (user-generated content)"
+    ],
+    "complexity": "complex",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "CSRF protection is implemented for state-changing operations",
+    "steps": [
+      "Step 1: Inspect state-changing endpoints (POST, PUT, DELETE)",
+      "Step 2: Verify CSRF tokens are required",
+      "Step 3: Attempt request without CSRF token",
+      "Step 4: Verify request is rejected",
+      "Step 5: Verify CSRF tokens are validated",
+      "Step 6: Verify tokens are properly generated",
+      "Step 7: Verify SameSite cookie attribute is set"
+    ],
+    "complexity": "complex",
+    "dependencies": [44],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "File upload validation prevents malicious files",
+    "steps": [
+      "Step 1: Attempt to upload file (if feature exists)",
+      "Step 2: Verify file type validation",
+      "Step 3: Verify file size limits",
+      "Step 4: Attempt to upload executable or script",
+      "Step 5: Verify malicious files are rejected",
+      "Step 6: Verify content type verification",
+      "Step 7: Verify uploaded files are scanned/validated"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Dependencies are up-to-date and secure",
+    "steps": [
+      "Step 1: Run npm audit or equivalent",
+      "Step 2: Verify no high/critical vulnerabilities",
+      "Step 3: Check for outdated packages",
+      "Step 4: Verify security patches are applied",
+      "Step 5: Verify dependency lock file is committed",
+      "Step 6: Check for known vulnerable packages",
+      "Step 7: Verify automated dependency updates are configured"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Environment variables are properly configured for production",
+    "steps": [
+      "Step 1: Check production environment configuration",
+      "Step 2: Verify all required env vars are set",
+      "Step 3: Verify debug mode is disabled",
+      "Step 4: Verify appropriate logging level",
+      "Step 5: Verify production API endpoints are used",
+      "Step 6: Verify secure flags are enabled",
+      "Step 7: Verify no development-only settings in production"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Application has health check endpoint",
+    "steps": [
+      "Step 1: Make request to /health or /api/health",
+      "Step 2: Verify endpoint returns 200 OK when healthy",
+      "Step 3: Verify response includes status information",
+      "Step 4: Verify database connectivity is checked",
+      "Step 5: Verify external service connectivity is checked",
+      "Step 6: Simulate unhealthy state",
+      "Step 7: Verify appropriate error status and details"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Application logs are structured and searchable",
+    "steps": [
+      "Step 1: Trigger various application events",
+      "Step 2: Check log output",
+      "Step 3: Verify logs use JSON or structured format",
+      "Step 4: Verify logs include timestamp",
+      "Step 5: Verify logs include severity level",
+      "Step 6: Verify logs include correlation IDs",
+      "Step 7: Verify logs are searchable by key fields"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Error tracking captures and reports errors",
+    "steps": [
+      "Step 1: Integrate error tracking service (Sentry, etc.)",
+      "Step 2: Trigger an error in the application",
+      "Step 3: Verify error is captured",
+      "Step 4: Verify stack trace is included",
+      "Step 5: Verify user context is attached",
+      "Step 6: Verify breadcrumbs are captured",
+      "Step 7: Verify errors are grouped appropriately"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Performance monitoring tracks key metrics",
+    "steps": [
+      "Step 1: Implement performance monitoring",
+      "Step 2: Perform various operations",
+      "Step 3: Verify response times are tracked",
+      "Step 4: Verify throughput metrics are collected",
+      "Step 5: Verify error rates are monitored",
+      "Step 6: Verify database query times are tracked",
+      "Step 7: Verify metrics are accessible for analysis"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Frontend build process optimizes for production",
+    "steps": [
+      "Step 1: Run production build",
+      "Step 2: Verify minification is applied",
+      "Step 3: Verify code splitting is implemented",
+      "Step 4: Verify tree shaking removes unused code",
+      "Step 5: Verify bundle size is reasonable",
+      "Step 6: Verify source maps are generated but not exposed",
+      "Step 7: Verify assets are hashed for cache busting"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Images are optimized and lazy loaded",
+    "steps": [
+      "Step 1: Navigate to pages with images",
+      "Step 2: Verify images are compressed/optimized",
+      "Step 3: Verify responsive images are used (srcset)",
+      "Step 4: Verify images below fold are lazy loaded",
+      "Step 5: Verify proper image formats (WebP with fallback)",
+      "Step 6: Verify image dimensions are specified",
+      "Step 7: Check Lighthouse score for image optimization"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "CSS is optimized and doesn't block rendering",
+    "steps": [
+      "Step 1: Analyze page load",
+      "Step 2: Verify critical CSS is inlined",
+      "Step 3: Verify non-critical CSS is async loaded",
+      "Step 4: Verify CSS is minified",
+      "Step 5: Verify unused CSS is purged",
+      "Step 6: Check for render-blocking CSS",
+      "Step 7: Verify CSS performance in Lighthouse"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "JavaScript is optimized and chunked appropriately",
+    "steps": [
+      "Step 1: Analyze JavaScript bundles",
+      "Step 2: Verify code splitting by route",
+      "Step 3: Verify vendor code is separate chunk",
+      "Step 4: Verify large dependencies are code-split",
+      "Step 5: Verify no duplicate code across chunks",
+      "Step 6: Verify bundle sizes are reasonable",
+      "Step 7: Check bundle analysis report"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Caching headers are set appropriately",
+    "steps": [
+      "Step 1: Make requests to various resources",
+      "Step 2: Verify static assets have long cache times",
+      "Step 3: Verify HTML has short cache or no-cache",
+      "Step 4: Verify API responses have appropriate cache headers",
+      "Step 5: Verify ETags are used",
+      "Step 6: Test cache behavior",
+      "Step 7: Verify cache invalidation works"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "CDN is used for static asset delivery",
+    "steps": [
+      "Step 1: Inspect asset URLs",
+      "Step 2: Verify static assets served from CDN",
+      "Step 3: Verify CDN headers are present",
+      "Step 4: Test asset loading speed",
+      "Step 5: Verify geo-distributed delivery",
+      "Step 6: Verify SSL on CDN",
+      "Step 7: Verify CDN caching is configured"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Lighthouse performance score is above 90",
+    "steps": [
+      "Step 1: Run Lighthouse audit on landing page",
+      "Step 2: Verify performance score is above 90",
+      "Step 3: Run audit on dashboard",
+      "Step 4: Verify performance score is above 90",
+      "Step 5: Run audit on documentation viewer",
+      "Step 6: Verify performance score is above 90",
+      "Step 7: Address any performance issues flagged"
+    ],
+    "complexity": "complex",
+    "dependencies": [1, 5, 17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Lighthouse accessibility score is 100",
+    "steps": [
+      "Step 1: Run Lighthouse accessibility audit",
+      "Step 2: Verify score is 100",
+      "Step 3: Fix any flagged issues",
+      "Step 4: Verify color contrast ratios",
+      "Step 5: Verify semantic HTML",
+      "Step 6: Verify ARIA labels where needed",
+      "Step 7: Re-run audit to confirm"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Lighthouse SEO score is 100",
+    "steps": [
+      "Step 1: Run Lighthouse SEO audit",
+      "Step 2: Verify score is 100",
+      "Step 3: Verify meta tags are present",
+      "Step 4: Verify Open Graph tags",
+      "Step 5: Verify robots.txt exists",
+      "Step 6: Verify sitemap.xml exists",
+      "Step 7: Verify canonical URLs"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Lighthouse best practices score is 100",
+    "steps": [
+      "Step 1: Run Lighthouse best practices audit",
+      "Step 2: Verify score is 100",
+      "Step 3: Verify HTTPS is used everywhere",
+      "Step 4: Verify no console errors",
+      "Step 5: Verify proper image aspect ratios",
+      "Step 6: Verify no vulnerable libraries",
+      "Step 7: Address any flagged issues"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Screen readers can navigate the application",
+    "steps": [
+      "Step 1: Enable screen reader (NVDA, JAWS, VoiceOver)",
+      "Step 2: Navigate landing page with screen reader",
+      "Step 3: Verify all content is announced",
+      "Step 4: Navigate through dashboard",
+      "Step 5: Verify logical reading order",
+      "Step 6: Test form interactions",
+      "Step 7: Verify all interactive elements are accessible"
+    ],
+    "complexity": "complex",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Skip to main content link is present",
+    "steps": [
+      "Step 1: Navigate to any page",
+      "Step 2: Press Tab key immediately",
+      "Step 3: Verify 'Skip to main content' link appears",
+      "Step 4: Activate the link",
+      "Step 5: Verify focus moves to main content",
+      "Step 6: Verify link is visually hidden until focused",
+      "Step 7: Test on multiple pages"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "All images have appropriate alt text",
+    "steps": [
+      "Step 1: Inspect all images in application",
+      "Step 2: Verify alt attributes are present",
+      "Step 3: Verify alt text is descriptive",
+      "Step 4: Verify decorative images have empty alt",
+      "Step 5: Verify complex images have detailed descriptions",
+      "Step 6: Use automated checker to find missing alt",
+      "Step 7: Fix any issues found"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Form labels are properly associated with inputs",
+    "steps": [
+      "Step 1: Inspect all forms",
+      "Step 2: Verify every input has a label",
+      "Step 3: Verify labels use 'for' attribute or wrap input",
+      "Step 4: Click labels to verify focus moves to input",
+      "Step 5: Verify placeholder is not used as only label",
+      "Step 6: Verify field purposes are clear",
+      "Step 7: Test with screen reader"
+    ],
+    "complexity": "simple",
+    "dependencies": [106],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "ARIA landmarks identify page regions",
+    "steps": [
+      "Step 1: Inspect page HTML",
+      "Step 2: Verify header uses <header> or role='banner'",
+      "Step 3: Verify main content uses <main> or role='main'",
+      "Step 4: Verify navigation uses <nav> or role='navigation'",
+      "Step 5: Verify footer uses <footer> or role='contentinfo'",
+      "Step 6: Test navigation with screen reader",
+      "Step 7: Verify logical landmark structure"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Color is not the only means of conveying information",
+    "steps": [
+      "Step 1: Identify elements that use color to convey meaning",
+      "Step 2: Verify additional indicators (icons, text, patterns)",
+      "Step 3: Test with grayscale filter",
+      "Step 4: Verify success/error states have icons plus color",
+      "Step 5: Verify links are distinguishable without color",
+      "Step 6: Test with color blindness simulator",
+      "Step 7: Fix any color-only dependencies"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Text can be resized to 200% without loss of functionality",
+    "steps": [
+      "Step 1: Navigate to application",
+      "Step 2: Increase browser zoom to 200%",
+      "Step 3: Verify text is readable",
+      "Step 4: Verify no content is cut off",
+      "Step 5: Verify all functionality still works",
+      "Step 6: Verify no horizontal scrolling required",
+      "Step 7: Test on multiple pages"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Animations respect prefers-reduced-motion",
+    "steps": [
+      "Step 1: Enable reduced motion in OS settings",
+      "Step 2: Navigate through application",
+      "Step 3: Verify animations are reduced or removed",
+      "Step 4: Verify transitions are instant or subtle",
+      "Step 5: Verify functionality not dependent on animation",
+      "Step 6: Disable reduced motion",
+      "Step 7: Verify animations return to normal"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Modal dialogs trap focus and can be closed with Escape",
+    "steps": [
+      "Step 1: Open a modal dialog",
+      "Step 2: Try to Tab outside modal",
+      "Step 3: Verify focus stays within modal",
+      "Step 4: Press Escape key",
+      "Step 5: Verify modal closes",
+      "Step 6: Verify focus returns to trigger element",
+      "Step 7: Test with screen reader"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "All interactive elements are keyboard accessible",
+    "steps": [
+      "Step 1: Navigate application using only keyboard",
+      "Step 2: Verify all buttons are reachable via Tab",
+      "Step 3: Verify all links are reachable",
+      "Step 4: Verify custom controls are keyboard accessible",
+      "Step 5: Verify dropdowns work with arrow keys",
+      "Step 6: Verify complex widgets follow ARIA patterns",
+      "Step 7: Verify no keyboard traps"
+    ],
+    "complexity": "complex",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Page titles are descriptive and unique",
+    "steps": [
+      "Step 1: Navigate to landing page",
+      "Step 2: Verify page title in browser tab is descriptive",
+      "Step 3: Navigate to dashboard",
+      "Step 4: Verify title is different and descriptive",
+      "Step 5: Navigate to other pages",
+      "Step 6: Verify each page has unique, descriptive title",
+      "Step 7: Verify title format is consistent"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Language of page is declared",
+    "steps": [
+      "Step 1: View page source",
+      "Step 2: Verify <html> tag has lang attribute",
+      "Step 3: Verify lang='en' or appropriate language code",
+      "Step 4: If multiple languages, verify lang on elements",
+      "Step 5: Verify language changes are marked up",
+      "Step 6: Test with screen reader",
+      "Step 7: Verify pronunciation is correct"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Meta description is present on public pages",
+    "steps": [
+      "Step 1: View source of landing page",
+      "Step 2: Verify meta description tag exists",
+      "Step 3: Verify description is compelling and accurate",
+      "Step 4: Verify length is appropriate (150-160 chars)",
+      "Step 5: Check other public pages",
+      "Step 6: Verify each page has unique description",
+      "Step 7: Verify no duplicate meta descriptions"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Open Graph tags are set for social sharing",
+    "steps": [
+      "Step 1: View source of landing page",
+      "Step 2: Verify og:title is present",
+      "Step 3: Verify og:description is present",
+      "Step 4: Verify og:image is present",
+      "Step 5: Verify og:url is present",
+      "Step 6: Test sharing on social media",
+      "Step 7: Verify preview looks correct"
+    ],
+    "complexity": "simple",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Robots.txt allows appropriate crawling",
+    "steps": [
+      "Step 1: Navigate to /robots.txt",
+      "Step 2: Verify file exists",
+      "Step 3: Verify public pages are not disallowed",
+      "Step 4: Verify private/admin pages are disallowed",
+      "Step 5: Verify sitemap is referenced",
+      "Step 6: Verify crawl delay if needed",
+      "Step 7: Test with robots.txt tester"
+    ],
+    "complexity": "simple",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Sitemap.xml is generated and accessible",
+    "steps": [
+      "Step 1: Navigate to /sitemap.xml",
+      "Step 2: Verify file exists and is valid XML",
+      "Step 3: Verify public pages are included",
+      "Step 4: Verify URLs are absolute",
+      "Step 5: Verify lastmod dates are present",
+      "Step 6: Verify priority is set appropriately",
+      "Step 7: Submit sitemap to search engines"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Structured data (JSON-LD) is present for rich snippets",
+    "steps": [
+      "Step 1: View source of relevant pages",
+      "Step 2: Verify JSON-LD script tag is present",
+      "Step 3: Verify schema.org types are used",
+      "Step 4: Verify data is accurate",
+      "Step 5: Test with Google Rich Results Test",
+      "Step 6: Verify no errors in structured data",
+      "Step 7: Verify appropriate schemas for page types"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Canonical URLs prevent duplicate content issues",
+    "steps": [
+      "Step 1: View source of pages",
+      "Step 2: Verify <link rel='canonical'> is present",
+      "Step 3: Verify canonical URL is correct",
+      "Step 4: Check pages accessible via multiple URLs",
+      "Step 5: Verify canonical points to preferred version",
+      "Step 6: Test with trailing slashes, query params",
+      "Step 7: Verify no conflicting canonical tags"
+    ],
+    "complexity": "medium",
+    "dependencies": [1],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "404 page is helpful and branded",
+    "steps": [
+      "Step 1: Navigate to non-existent URL",
+      "Step 2: Verify 404 status code is returned",
+      "Step 3: Verify custom 404 page is shown",
+      "Step 4: Verify page is branded (logo, styling)",
+      "Step 5: Verify helpful message and suggestions",
+      "Step 6: Verify navigation back to home",
+      "Step 7: Verify search or links to popular pages"
+    ],
+    "complexity": "simple",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "500 error page is handled gracefully",
+    "steps": [
+      "Step 1: Trigger server error",
+      "Step 2: Verify 500 status code",
+      "Step 3: Verify custom error page is shown",
+      "Step 4: Verify user-friendly error message",
+      "Step 5: Verify no stack traces or sensitive info",
+      "Step 6: Verify option to retry or go home",
+      "Step 7: Verify error is logged on backend"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation includes code examples with syntax highlighting",
+    "steps": [
+      "Step 1: View generated documentation",
+      "Step 2: Locate code examples",
+      "Step 3: Verify syntax highlighting is applied",
+      "Step 4: Verify highlighting is accurate for language",
+      "Step 5: Verify code is readable",
+      "Step 6: Verify copy button is present",
+      "Step 7: Test in both light and dark mode"
+    ],
+    "complexity": "simple",
+    "dependencies": [78],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation viewer has print-friendly styles",
+    "steps": [
+      "Step 1: Navigate to documentation",
+      "Step 2: Open print preview",
+      "Step 3: Verify layout is optimized for print",
+      "Step 4: Verify unnecessary UI elements are hidden",
+      "Step 5: Verify page breaks are appropriate",
+      "Step 6: Verify code blocks are readable",
+      "Step 7: Verify links show URLs in print"
+    ],
+    "complexity": "medium",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code analysis handles edge cases gracefully",
+    "steps": [
+      "Step 1: Analyze repository with unusual code patterns",
+      "Step 2: Test with very long files",
+      "Step 3: Test with binary files",
+      "Step 4: Test with empty files",
+      "Step 5: Test with files without extensions",
+      "Step 6: Test with malformed syntax",
+      "Step 7: Verify analysis doesn't crash",
+      "Step 8: Verify errors are logged and handled"
+    ],
+    "complexity": "complex",
+    "dependencies": [9],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Repository re-sync is idempotent",
+    "steps": [
+      "Step 1: Sync repository for first time",
+      "Step 2: Note results and documentation",
+      "Step 3: Trigger sync again without changes",
+      "Step 4: Verify results are identical",
+      "Step 5: Verify no duplicate documents",
+      "Step 6: Verify timestamps are updated",
+      "Step 7: Verify multiple syncs don't cause issues"
+    ],
+    "complexity": "medium",
+    "dependencies": [32],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Large documentation is paginated or virtualized",
+    "steps": [
+      "Step 1: Generate documentation for large repository",
+      "Step 2: Navigate to documentation viewer",
+      "Step 3: Verify content is paginated or lazy-loaded",
+      "Step 4: Verify scroll performance is smooth",
+      "Step 5: Verify memory usage is reasonable",
+      "Step 6: Test navigation between large sections",
+      "Step 7: Verify no performance degradation"
+    ],
+    "complexity": "complex",
+    "dependencies": [17],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Chat history is persisted and retrievable",
+    "steps": [
+      "Step 1: Have conversation in chat interface",
+      "Step 2: Navigate away from chat",
+      "Step 3: Return to chat interface",
+      "Step 4: Verify conversation history is shown",
+      "Step 5: Log out and log back in",
+      "Step 6: Return to chat",
+      "Step 7: Verify history is still preserved"
+    ],
+    "complexity": "medium",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Chat can handle very long conversations",
+    "steps": [
+      "Step 1: Start chat conversation",
+      "Step 2: Send many messages (50+)",
+      "Step 3: Verify all messages are displayed",
+      "Step 4: Verify scrolling works smoothly",
+      "Step 5: Verify old messages are loaded as needed",
+      "Step 6: Verify context window is managed (last N messages)",
+      "Step 7: Verify performance doesn't degrade"
+    ],
+    "complexity": "complex",
+    "dependencies": [82],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Chat messages can include code blocks",
+    "steps": [
+      "Step 1: Send chat message that includes code",
+      "Step 2: Verify AI response includes code blocks",
+      "Step 3: Verify code blocks have syntax highlighting",
+      "Step 4: Verify code blocks have copy button",
+      "Step 5: Verify code formatting is preserved",
+      "Step 6: Verify inline code is styled appropriately",
+      "Step 7: Test with various programming languages"
+    ],
+    "complexity": "medium",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "User can clear chat history",
+    "steps": [
+      "Step 1: Have conversation in chat",
+      "Step 2: Locate 'Clear History' button",
+      "Step 3: Click to clear",
+      "Step 4: Verify confirmation dialog",
+      "Step 5: Confirm clearing",
+      "Step 6: Verify chat history is deleted",
+      "Step 7: Verify new conversation can be started"
+    ],
+    "complexity": "simple",
+    "dependencies": [26],
+    "passes": false
+  },
+  {
+    "category": "style",
+    "description": "Chat interface has modern, messaging-app-like design",
+    "steps": [
+      "Step 1: Navigate to chat interface",
+      "Step 2: Take screenshot",
+      "Step 3: Verify messages are in bubbles",
+      "Step 4: Verify user and AI messages are visually distinct",
+      "Step 5: Verify timestamps are shown",
+      "Step 6: Verify scrolling is smooth",
+      "Step 7: Verify input area is fixed at bottom"
+    ],
+    "complexity": "medium",
+    "dependencies": [25],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Documentation can be regenerated without losing custom settings",
+    "steps": [
+      "Step 1: Set custom documentation preferences",
+      "Step 2: Generate documentation",
+      "Step 3: Trigger regeneration",
+      "Step 4: Verify custom settings are preserved",
+      "Step 5: Verify new documentation follows settings",
+      "Step 6: Verify old docs are overwritten appropriately",
+      "Step 7: Verify no data loss"
+    ],
+    "complexity": "medium",
+    "dependencies": [112],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Multiple repositories can be analyzed concurrently",
+    "steps": [
+      "Step 1: Add multiple repositories",
+      "Step 2: Trigger analysis for all simultaneously",
+      "Step 3: Verify all analyses start",
+      "Step 4: Verify progress for each is tracked independently",
+      "Step 5: Verify no interference between analyses",
+      "Step 6: Verify all complete successfully",
+      "Step 7: Verify system resources are managed well"
+    ],
+    "complexity": "complex",
+    "dependencies": [63],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Claude API usage is tracked and monitored",
+    "steps": [
+      "Step 1: Perform operations that use Claude API",
+      "Step 2: Check API usage tracking",
+      "Step 3: Verify requests are counted",
+      "Step 4: Verify tokens are counted",
+      "Step 5: Verify costs are calculated if applicable",
+      "Step 6: Verify usage limits are enforced",
+      "Step 7: Verify monitoring alerts for high usage"
+    ],
+    "complexity": "complex",
+    "dependencies": [12],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database connection pool is configured properly",
+    "steps": [
+      "Step 1: Check database connection configuration",
+      "Step 2: Verify pool size is appropriate",
+      "Step 3: Verify connection timeout is set",
+      "Step 4: Verify idle timeout is set",
+      "Step 5: Verify max connections is reasonable",
+      "Step 6: Test under load",
+      "Step 7: Verify no connection leaks"
+    ],
+    "complexity": "medium",
+    "dependencies": [40],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database migrations are version controlled",
+    "steps": [
+      "Step 1: Check for database migration files",
+      "Step 2: Verify migrations are in source control",
+      "Step 3: Verify migrations are numbered/timestamped",
+      "Step 4: Verify migrations can be rolled back",
+      "Step 5: Run migrations in test environment",
+      "Step 6: Verify schema matches expected state",
+      "Step 7: Verify migration history is tracked"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Database indexes optimize query performance",
+    "steps": [
+      "Step 1: Review database schema",
+      "Step 2: Verify indexes on foreign keys",
+      "Step 3: Verify indexes on frequently queried columns",
+      "Step 4: Run query performance tests",
+      "Step 5: Verify query plans use indexes",
+      "Step 6: Check for missing indexes",
+      "Step 7: Verify no over-indexing"
+    ],
+    "complexity": "complex",
+    "dependencies": [40],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Vector database (Pinecone) namespace strategy is implemented",
+    "steps": [
+      "Step 1: Review Pinecone usage",
+      "Step 2: Verify namespaces separate different repositories",
+      "Step 3: Verify namespace naming is consistent",
+      "Step 4: Verify queries are scoped to correct namespace",
+      "Step 5: Verify namespace deletion on repo removal",
+      "Step 6: Test cross-repository isolation",
+      "Step 7: Verify no data leakage between namespaces"
+    ],
+    "complexity": "complex",
+    "dependencies": [68],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Backup and restore procedures are documented and tested",
+    "steps": [
+      "Step 1: Review backup configuration",
+      "Step 2: Verify automated backups are scheduled",
+      "Step 3: Verify backup frequency is appropriate",
+      "Step 4: Verify backups include all critical data",
+      "Step 5: Test restore procedure",
+      "Step 6: Verify data integrity after restore",
+      "Step 7: Document backup/restore process"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Deployment process is automated and documented",
+    "steps": [
+      "Step 1: Review deployment configuration",
+      "Step 2: Verify CI/CD pipeline exists",
+      "Step 3: Verify automated tests run before deploy",
+      "Step 4: Verify deploy to staging environment works",
+      "Step 5: Verify deploy to production works",
+      "Step 6: Verify rollback procedure exists",
+      "Step 7: Document deployment process"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Environment parity between staging and production",
+    "steps": [
+      "Step 1: Compare staging and production configs",
+      "Step 2: Verify same versions of dependencies",
+      "Step 3: Verify same infrastructure setup",
+      "Step 4: Verify similar data for testing",
+      "Step 5: Test feature in staging",
+      "Step 6: Deploy to production",
+      "Step 7: Verify consistent behavior"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Zero-downtime deployment is possible",
+    "steps": [
+      "Step 1: Prepare deployment",
+      "Step 2: Deploy new version",
+      "Step 3: Verify old version continues serving during deploy",
+      "Step 4: Verify health checks pass for new version",
+      "Step 5: Verify traffic is shifted to new version",
+      "Step 6: Verify no 503 errors during deployment",
+      "Step 7: Verify rollback works if needed"
+    ],
+    "complexity": "complex",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "README.md in repository root documents setup and usage",
+    "steps": [
+      "Step 1: Check for README.md in project root",
+      "Step 2: Verify README includes project description",
+      "Step 3: Verify setup instructions are clear",
+      "Step 4: Verify prerequisites are listed",
+      "Step 5: Verify usage examples are provided",
+      "Step 6: Verify deployment instructions are included",
+      "Step 7: Verify README is up-to-date"
+    ],
+    "complexity": "simple",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Code follows consistent style guide",
+    "steps": [
+      "Step 1: Review codebase",
+      "Step 2: Verify linter is configured (ESLint, Prettier)",
+      "Step 3: Verify linter rules are consistent",
+      "Step 4: Run linter on codebase",
+      "Step 5: Verify no linting errors",
+      "Step 6: Verify pre-commit hooks enforce linting",
+      "Step 7: Verify style guide is documented"
+    ],
+    "complexity": "medium",
+    "dependencies": [],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Git commit history is clean and meaningful",
+    "steps": [
+      "Step 1: Review git commit log",
+      "Step 2: Verify commit messages are descriptive",
+      "Step 3: Verify commits are atomic (single purpose)",
+      "Step 4: Verify no sensitive data in history",
+      "Step 5: Verify no huge commits with unrelated changes",
+      "Step 6: Verify consistent commit message format",
+      "Step 7: Verify branch strategy is followed"
+    ],
+    "complexity": "simple",
+    "dependencies": [],
+    "passes": false
+  }
+]
