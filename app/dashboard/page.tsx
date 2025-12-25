@@ -27,21 +27,26 @@ export default function DashboardPage() {
     // Check authentication status
     const checkAuth = async () => {
       try {
-        // Try the main auth status endpoint first
-        let response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
-          {
-            credentials: "include", // Include cookies
-          }
-        );
+        // In development, try dev endpoint first (doesn't need database)
+        const isDevelopment = window.location.hostname === "localhost";
+        let response;
 
-        // If main endpoint fails (e.g., database not available), try dev endpoint
-        if (!response.ok || response.status === 500) {
-          console.log("Falling back to dev auth status");
+        if (isDevelopment) {
+          // Try dev endpoint first in development
           response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/status-dev`,
             {
               credentials: "include",
+            }
+          );
+        }
+
+        // If dev endpoint didn't work or we're not in development, try main endpoint
+        if (!response || !response.ok) {
+          response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
+            {
+              credentials: "include", // Include cookies
             }
           );
         }

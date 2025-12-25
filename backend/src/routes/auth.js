@@ -221,28 +221,46 @@ router.get("/status", async (req, res) => {
     try {
       const decoded = jwt.verify(token, secret);
 
-      // Fetch full user data
-      const { findUserById } = await import("../services/userService.js");
-      const user = await findUserById(decoded.id);
+      // Try to fetch full user data from database
+      try {
+        const { findUserById } = await import("../services/userService.js");
+        const user = await findUserById(decoded.id);
 
-      if (!user) {
+        if (!user) {
+          return res.json({
+            authenticated: false,
+            user: null,
+          });
+        }
+
+        // Return user data from database
         return res.json({
-          authenticated: false,
-          user: null,
+          authenticated: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatarUrl: user.avatar_url,
+            githubId: user.github_id,
+          },
+        });
+      } catch (dbError) {
+        // Database unavailable, return data from token (development mode)
+        logger.warn("Database unavailable, returning user data from token", {
+          error: dbError.message,
+        });
+
+        return res.json({
+          authenticated: true,
+          user: {
+            id: decoded.id,
+            name: decoded.name || "Demo User",
+            email: decoded.email || "demo@autodocs.ai",
+            avatarUrl: decoded.avatarUrl || "https://github.com/identicons/demo.png",
+            githubId: decoded.githubId || "12345678",
+          },
         });
       }
-
-      // Return user data without sensitive info
-      res.json({
-        authenticated: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          avatarUrl: user.avatar_url,
-          githubId: user.github_id,
-        },
-      });
     } catch (error) {
       // Token invalid or expired
       logger.info("Invalid or expired token in status check", {

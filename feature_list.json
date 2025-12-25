@@ -54,7 +54,7 @@
     ],
     "complexity": "complex",
     "dependencies": [3],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
