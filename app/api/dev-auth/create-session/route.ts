@@ -32,10 +32,10 @@ export async function GET() {
     // Create redirect response
     const response = NextResponse.redirect(new URL("/dashboard", "http://localhost:3000"));
 
-    // Set cookie on the response
+    // Set cookie on the response (dev-only, so secure is always false)
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // Dev-only endpoint, always false
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
       path: "/",
