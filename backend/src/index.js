@@ -21,6 +21,7 @@ import { metricsMiddleware, metricsEndpoint, getMetricsJSON } from "./middleware
 import authRoutes from "./routes/auth.js";
 import testAuthRoutes from "./routes/test-auth.js";
 import repoRoutes from "./routes/repos.js";
+import testDbRoutes from "./routes/test-db.js";
 
 // Get the directory name of the current module
 // Trigger restart - using PORT=4000
@@ -184,6 +185,12 @@ if (process.env.NODE_ENV !== "production") {
   const authDevModule = await import("./routes/auth-dev.js");
   app.use("/api/auth-dev", authDevModule.default);
   logger.info("✅ Development auth routes registered at /api/auth-dev");
+}
+
+// Test database routes (for development/testing only)
+if (process.env.NODE_ENV !== "production") {
+  app.use("/api/test-db", testDbRoutes);
+  logger.info("✅ Test database routes registered at /api/test-db");
 }
 
 // app.use('/api/webhooks', webhookRoutes);  // To be added
