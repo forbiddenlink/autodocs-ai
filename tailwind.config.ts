@@ -7,6 +7,16 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    "bg-background",
+    "text-foreground",
+    "bg-card",
+    "text-card-foreground",
+    "bg-primary",
+    "text-primary-foreground",
+    "bg-muted",
+    "text-muted-foreground",
+  ],
   theme: {
     extend: {
       colors: {
