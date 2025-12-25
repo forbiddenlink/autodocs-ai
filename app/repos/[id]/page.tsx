@@ -43,6 +43,7 @@ export default function RepositoryPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [repository, setRepository] = useState<Repository | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     // Update page title dynamically for client component
@@ -115,6 +116,70 @@ export default function RepositoryPage() {
   // Use inline styles as fallback since Tailwind custom colors aren't compiling
   const bgColor = theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(0 0% 100%)";
   const textColor = theme === "dark" ? "hsl(210 40% 98%)" : "hsl(222.2 84% 4.9%)";
+  const cardBg = theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(0 0% 98%)";
+  const borderColor = theme === "dark" ? "hsl(217.2 32.6% 27.5%)" : "hsl(214.3 31.8% 91.4%)";
+
+  // Add copy buttons to code blocks after render
+  useEffect(() => {
+    if (!selectedDoc) return;
+
+    const addCopyButtons = () => {
+      const codeBlocks = document.querySelectorAll("pre:not(.copy-button-added)");
+
+      codeBlocks.forEach((pre) => {
+        pre.classList.add("copy-button-added");
+
+        // Get the code text
+        const code = pre.querySelector("code");
+        if (!code) return;
+        const codeText = code.textContent || "";
+
+        // Create wrapper div
+        const wrapper = document.createElement("div");
+        wrapper.className = "relative group";
+        pre.parentNode?.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+
+        // Create copy button
+        const button = document.createElement("button");
+        button.className =
+          "absolute top-2 right-2 p-2 rounded transition-all opacity-0 group-hover:opacity-100";
+        button.style.backgroundColor = borderColor;
+        button.setAttribute("aria-label", "Copy code");
+        button.innerHTML = `
+          <svg class="w-4 h-4" style="opacity: 0.7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        `;
+
+        button.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(codeText);
+            button.innerHTML = `
+              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            `;
+            setTimeout(() => {
+              button.innerHTML = `
+                <svg class="w-4 h-4" style="opacity: 0.7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              `;
+            }, 2000);
+          } catch (err) {
+            console.error("Failed to copy:", err);
+          }
+        };
+
+        wrapper.insertBefore(button, pre);
+      });
+    };
+
+    // Run after a short delay to ensure ReactMarkdown has rendered
+    const timer = setTimeout(addCopyButtons, 300);
+    return () => clearTimeout(timer);
+  }, [selectedDoc, borderColor]);
 
   if (loading) {
     return (
@@ -141,9 +206,6 @@ export default function RepositoryPage() {
       </div>
     );
   }
-
-  const cardBg = theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(0 0% 98%)";
-  const borderColor = theme === "dark" ? "hsl(217.2 32.6% 27.5%)" : "hsl(214.3 31.8% 91.4%)";
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
@@ -264,6 +326,8 @@ export default function RepositoryPage() {
                               </code>
                             );
                           }
+                          // For block code, just return the code element
+                          // The pre wrapper will be handled by the pre component override
                           return (
                             <code
                               className={`block p-4 rounded-lg overflow-x-auto ${className || ""}`}
