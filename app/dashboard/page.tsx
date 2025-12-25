@@ -27,6 +27,8 @@ interface Repository {
   lastSync: string | null;
   status: string;
   private: boolean;
+  fileCount?: number;
+  lineCount?: number;
 }
 
 type SortOption = "name-asc" | "name-desc" | "sync-asc" | "sync-desc";
@@ -461,6 +463,56 @@ export default function DashboardPage() {
                         <span className="flex items-center gap-1">⭐ {repo.stars}</span>
                       )}
                     </div>
+
+                    {/* Key Metrics - Files and Lines */}
+                    {(repo.fileCount !== undefined || repo.lineCount !== undefined) &&
+                      repo.status === "completed" && (
+                        <div
+                          className="flex items-center gap-4 text-xs mb-3 px-3 py-2 rounded-lg"
+                          style={{
+                            backgroundColor:
+                              theme === "dark" ? "hsl(217.2 32.6% 15%)" : "hsl(214.3 31.8% 95%)",
+                            color: mutedColor,
+                          }}
+                        >
+                          {repo.fileCount !== undefined && repo.fileCount > 0 && (
+                            <span className="flex items-center gap-1.5 font-medium">
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                />
+                              </svg>
+                              <span>{repo.fileCount.toLocaleString()} files</span>
+                            </span>
+                          )}
+                          {repo.lineCount !== undefined && repo.lineCount > 0 && (
+                            <span className="flex items-center gap-1.5 font-medium">
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 6h16M4 12h16M4 18h16"
+                                />
+                              </svg>
+                              <span>{repo.lineCount.toLocaleString()} lines</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
 
                     {/* Last Sync */}
                     {repo.lastSync && (

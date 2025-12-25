@@ -31,6 +31,8 @@ router.get("/", authenticateToken, async (req, res) => {
           lastSync: new Date().toISOString(),
           status: "completed",
           private: false,
+          fileCount: 247,
+          lineCount: 18543,
         },
         {
           id: 2,
@@ -43,6 +45,8 @@ router.get("/", authenticateToken, async (req, res) => {
           lastSync: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
           status: "analyzing",
           private: false,
+          fileCount: 156,
+          lineCount: 12389,
         },
         {
           id: 3,
@@ -55,6 +59,8 @@ router.get("/", authenticateToken, async (req, res) => {
           lastSync: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
           status: "completed",
           private: true,
+          fileCount: 89,
+          lineCount: 7621,
         },
         {
           id: 4,
@@ -67,6 +73,8 @@ router.get("/", authenticateToken, async (req, res) => {
           lastSync: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
           status: "pending",
           private: false,
+          fileCount: 0,
+          lineCount: 0,
         },
         {
           id: 5,
@@ -79,6 +87,8 @@ router.get("/", authenticateToken, async (req, res) => {
           lastSync: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
           status: "error",
           private: false,
+          fileCount: 0,
+          lineCount: 0,
         },
       ];
 
