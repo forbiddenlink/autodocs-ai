@@ -1,0 +1,110 @@
+# AutoDocs AI - Application Specification
+
+## Core Application: AI-Powered Documentation Platform
+
+### Overview
+A SaaS platform that automatically generates and maintains code documentation using AI. Users connect their GitHub repositories, and the system analyzes the codebase to create comprehensive, always-up-to-date documentation.
+
+### Tech Stack
+- Frontend: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
+- Backend: Node.js, Express
+- AI: Claude API (Anthropic)
+- Code Analysis: Tree-sitter parser
+- Database: PostgreSQL (metadata), Pinecone (vector embeddings)
+- Auth: GitHub OAuth
+- Deployment: Vercel (frontend), Railway (backend)
+
+### Key Features (MVP)
+
+#### 1. Authentication & Repository Management
+- GitHub OAuth login
+- List user's repositories
+- Select repositories to document
+- Webhook setup for auto-updates
+
+#### 2. Code Analysis Engine
+- Parse code using Tree-sitter
+- Extract: functions, classes, modules, comments
+- Generate AST (Abstract Syntax Tree)
+- Identify dependencies and relationships
+
+#### 3. AI Documentation Generation
+- Send code context to Claude API
+- Generate:
+  - README files
+  - API documentation
+  - Architecture diagrams (Mermaid)
+  - Function/class descriptions
+  - Usage examples
+- Maintain consistent style and tone
+
+#### 4. Documentation Viewer
+- MDX rendering with syntax highlighting
+- Table of contents navigation
+- Search functionality
+- Code block copy buttons
+- Dark mode toggle
+
+#### 5. AI Chat Interface
+- Ask questions about the codebase
+- "Explain what the checkout service does"
+- Retrieval-Augmented Generation (RAG) using vector embeddings
+- Context-aware responses
+
+#### 6. Auto-Update System
+- GitHub webhooks on push events
+- Detect changed files
+- Re-analyze and regenerate affected docs
+- Show update status and history
+
+### Pages & Routes
+
+/                     → Landing page
+/dashboard            → Repository list
+/repos/[id]           → Documentation viewer
+/repos/[id]/chat      → AI chat interface
+/repos/[id]/settings  → Repository settings
+/settings             → User settings
+
+### Database Schema
+
+**users**
+- id, github_id, email, name, avatar_url, created_at
+
+**repositories**
+- id, user_id, github_repo_id, name, url, last_sync, status
+
+**documents**
+- id, repo_id, path, content, type, generated_at
+
+**embeddings**
+- id, repo_id, chunk, embedding_vector
+
+### API Endpoints
+
+POST   /api/auth/github          → GitHub OAuth
+GET    /api/repos                → List repositories
+POST   /api/repos                → Add repository
+GET    /api/repos/:id            → Get repository details
+POST   /api/repos/:id/analyze    → Trigger analysis
+GET    /api/repos/:id/docs       → Get documentation
+POST   /api/repos/:id/chat       → Chat with AI about code
+POST   /api/webhooks/github      → Handle GitHub webhooks
+
+### User Stories
+
+1. As a developer, I want to connect my GitHub repository so the system can analyze my code
+2. As a developer, I want to see auto-generated documentation for my codebase
+3. As a developer, I want documentation to update automatically when I push code
+4. As a developer, I want to ask questions about my codebase in natural language
+5. As a team lead, I want onboarding docs generated for new hires
+6. As a developer, I want to search across all documentation
+7. As a developer, I want to customize documentation templates
+
+### Non-Functional Requirements
+- Documentation generation < 5 minutes for repos with <10K lines
+- Search response time < 200ms
+- Chat response time < 3 seconds
+- Support repositories up to 100K lines of code
+- 99.9% uptime SLA for paid plans
+

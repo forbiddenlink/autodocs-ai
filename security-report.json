@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-12-24T19:56:32.669876",
+  "project_path": "/Users/elizabethstein/Projects/autodocs-ai",
+  "security_score": 100,
+  "issues": [],
+  "dependencies": [
+    {
+      "package_name": "next",
+      "current_version": "15.0.0-canary.0 - 15.4.6",
+      "vulnerable_versions": "15.0.0-canary.0 - 15.4.6",
+      "fixed_version": "15.5.9",
+      "severity": "Severity.CRITICAL",
+      "cve": "",
+      "description": ""
+    }
+  ],
+  "secrets_found": [],
+  "owasp_compliance": {},
+  "recommendations": [
+    "",
+    "Risk Level:** HIGH",
+    "Implementation Effort:** Low (15-30 minutes)",
+    "Security Risk:",
+    "Immediate Actions:",
+    "Example Fix:",
+    "Prerequisites:** Ensure you have test coverage before updating dependencies.",
+    "",
+    "Risk Level:** MEDIUM",
+    "Implementation Effort:** Medium (1-2 hours)",
+    "Security Risk:",
+    "Implementation:",
+    "",
+    "Implementation Effort:** Medium (2-3 hours)",
+    "1. Implement Dependency Pinning:",
+    "2. Add Security-First Dependencies:",
+    "3. Security Headers Implementation:",
+    "",
+    "Implementation Effort:** High (4-6 hours initially, then automated)",
+    "1. Pre-commit Security Hooks:",
+    "2. Comprehensive Security Scanning:",
+    "3. Security-Focused ESLint Rules:",
+    "4. Automated Vulnerability Database Updates:",
+    "",
+    "",
+    "\u2705 Zero vulnerable dependencies maintained",
+    "\u2705 Automated security scans pass",
+    "\u2705 Security headers properly configured",
+    "\u2705 Dependency updates tracked and tested",
+    "Next Review:** Schedule monthly security audits to maintain this excellent security posture."
+  ]
+}

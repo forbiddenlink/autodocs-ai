@@ -1,0 +1,506 @@
+{
+  "brief": "Modern SaaS dashboard for AI documentation tool with repository list, documentation viewer with MDX, search interface, and AI chat. Developer-focused design inspired by Linear/GitHub with minimal dark mode aesthetic.",
+  "style": "modern",
+  "platform": "web",
+  "layout": [
+    {
+      "name": "sidebar",
+      "layout": "left-aligned",
+      "components": [
+        {
+          "type": "logo",
+          "text": "DocAI",
+          "style": {
+            "fontSize": "1.25rem",
+            "fontWeight": 600,
+            "color": "neutral-50"
+          }
+        },
+        {
+          "type": "navigation",
+          "items": [
+            "Repositories",
+            "Documentation",
+            "Search",
+            "AI Chat",
+            "Settings"
+          ],
+          "style": {
+            "fontSize": "0.875rem",
+            "fontWeight": 500,
+            "color": "neutral-300"
+          }
+        },
+        {
+          "type": "repository-list",
+          "components": [
+            "repo-item",
+            "status-indicator",
+            "star-count"
+          ],
+          "style": {
+            "fontSize": "0.75rem",
+            "color": "neutral-400"
+          }
+        }
+      ],
+      "spacing": {
+        "padding": "24px 16px",
+        "gap": "24px"
+      },
+      "background": "solid",
+      "width": "280px"
+    },
+    {
+      "name": "header",
+      "layout": "split",
+      "components": [
+        {
+          "type": "breadcrumb",
+          "text": "docs / getting-started / installation.mdx",
+          "style": {
+            "fontSize": "0.875rem",
+            "fontWeight": 400,
+            "color": "neutral-400"
+          }
+        },
+        {
+          "type": "search-bar",
+          "placeholder": "Search documentation...",
+          "style": {
+            "fontSize": "0.875rem",
+            "background": "neutral-800",
+            "border": "1px solid neutral-700"
+          }
+        },
+        {
+          "type": "actions",
+          "buttons": [
+            "ai-chat",
+            "settings",
+            "user-menu"
+          ],
+          "style": {
+            "gap": "8px"
+          }
+        }
+      ],
+      "spacing": {
+        "padding": "16px 24px",
+        "gap": "16px"
+      },
+      "background": "solid"
+    },
+    {
+      "name": "main-content",
+      "layout": "centered",
+      "components": [
+        {
+          "type": "documentation-viewer",
+          "text": "MDX content with syntax highlighting",
+          "style": {
+            "fontSize": "1rem",
+            "lineHeight": 1.75,
+            "color": "neutral-100"
+          }
+        },
+        {
+          "type": "code-block",
+          "language": "typescript",
+          "style": {
+            "background": "neutral-900",
+            "border": "1px solid neutral-700",
+            "borderRadius": "8px"
+          }
+        },
+        {
+          "type": "table-of-contents",
+          "position": "right-sidebar",
+          "style": {
+            "fontSize": "0.875rem",
+            "color": "neutral-300"
+          }
+        }
+      ],
+      "spacing": {
+        "padding": "32px 24px",
+        "gap": "24px"
+      },
+      "background": "solid"
+    },
+    {
+      "name": "ai-chat-panel",
+      "layout": "right-aligned",
+      "components": [
+        {
+          "type": "chat-header",
+          "text": "AI Assistant",
+          "style": {
+            "fontSize": "1rem",
+            "fontWeight": 600,
+            "color": "neutral-50"
+          }
+        },
+        {
+          "type": "chat-messages",
+          "style": {
+            "fontSize": "0.875rem",
+            "lineHeight": 1.5,
+            "color": "neutral-200"
+          }
+        },
+        {
+          "type": "chat-input",
+          "placeholder": "Ask about this documentation...",
+          "style": {
+            "fontSize": "0.875rem",
+            "background": "neutral-800",
+            "border": "1px solid neutral-600"
+          }
+        }
+      ],
+      "spacing": {
+        "padding": "24px 16px",
+        "gap": "16px"
+      },
+      "background": "solid",
+      "width": "320px"
+    }
+  ],
+  "colors": {
+    "primary": {
+      "50": "#f0f9ff",
+      "100": "#e0f2fe",
+      "200": "#bae6fd",
+      "300": "#7dd3fc",
+      "400": "#38bdf8",
+      "500": "#0ea5e9",
+      "600": "#0284c7",
+      "700": "#0369a1",
+      "800": "#075985",
+      "900": "#0c4a6e"
+    },
+    "secondary": {
+      "50": "#f8fafc",
+      "100": "#f1f5f9",
+      "200": "#e2e8f0",
+      "300": "#cbd5e1",
+      "400": "#94a3b8",
+      "500": "#64748b",
+      "600": "#475569",
+      "700": "#334155",
+      "800": "#1e293b",
+      "900": "#0f172a"
+    },
+    "neutral": {
+      "50": "#fafafa",
+      "100": "#f4f4f5",
+      "200": "#e4e4e7",
+      "300": "#d4d4d8",
+      "400": "#a1a1aa",
+      "500": "#71717a",
+      "600": "#52525b",
+      "700": "#3f3f46",
+      "800": "#27272a",
+      "900": "#18181b"
+    },
+    "success": "#10b981",
+    "warning": "#f59e0b",
+    "error": "#ef4444",
+    "info": "#3b82f6"
+  },
+  "typography": {
+    "headingFont": "Inter",
+    "bodyFont": "Inter",
+    "codeFont": "JetBrains Mono",
+    "fontSizes": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem"
+    },
+    "fontWeights": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeights": {
+      "tight": 1.25,
+      "normal": 1.5,
+      "relaxed": 1.75
+    }
+  },
+  "spacing": {
+    "unit": 4,
+    "scale": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      80,
+      96,
+      128
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "type": "button",
+      "description": "Interactive button component with multiple variants and states",
+      "variants": [
+        {
+          "name": "primary",
+          "style": {
+            "background": "primary-600",
+            "color": "white",
+            "padding": "12px 20px",
+            "borderRadius": "8px",
+            "fontSize": "0.875rem",
+            "fontWeight": 500,
+            "border": "none"
+          }
+        },
+        {
+          "name": "secondary",
+          "style": {
+            "background": "transparent",
+            "color": "neutral-300",
+            "padding": "12px 20px",
+            "borderRadius": "8px",
+            "fontSize": "0.875rem",
+            "fontWeight": 500,
+            "border": "1px solid neutral-600"
+          }
+        },
+        {
+          "name": "ghost",
+          "style": {
+            "background": "transparent",
+            "color": "neutral-400",
+            "padding": "8px 12px",
+            "borderRadius": "6px",
+            "fontSize": "0.875rem",
+            "fontWeight": 400,
+            "border": "none"
+          }
+        }
+      ],
+      "states": [
+        "hover",
+        "active",
+        "disabled",
+        "focus"
+      ],
+      "accessibility": {
+        "focusVisible": "2px solid primary-500",
+        "ariaLabel": "required for icon-only buttons",
+        "minTouchTarget": "44px"
+      }
+    },
+    {
+      "name": "SearchBar",
+      "type": "input",
+      "description": "Search input with icon and keyboard shortcuts",
+      "variants": [
+        {
+          "name": "default",
+          "style": {
+            "background": "neutral-800",
+            "color": "neutral-100",
+            "padding": "12px 16px 12px 44px",
+            "borderRadius": "8px",
+            "fontSize": "0.875rem",
+            "border": "1px solid neutral-700",
+            "width": "320px"
+          }
+        }
+      ],
+      "states": [
+        "focus",
+        "disabled",
+        "error"
+      ],
+      "accessibility": {
+        "focusVisible": "2px solid primary-500",
+        "ariaLabel": "Search documentation",
+        "placeholder": "descriptive placeholder text"
+      }
+    },
+    {
+      "name": "CodeBlock",
+      "type": "pre",
+      "description": "Syntax highlighted code block with copy functionality",
+      "variants": [
+        {
+          "name": "default",
+          "style": {
+            "background": "neutral-900",
+            "color": "neutral-100",
+            "padding": "20px",
+            "borderRadius": "8px",
+            "fontSize": "0.875rem",
+            "fontFamily": "JetBrains Mono",
+            "border": "1px solid neutral-700",
+            "overflowX": "auto"
+          }
+        }
+      ],
+      "states": [
+        "hover"
+      ],
+      "accessibility": {
+        "ariaLabel": "Code example",
+        "tabindex": "0",
+        "role": "region"
+      }
+    },
+    {
+      "name": "StatusIndicator",
+      "type": "span",
+      "description": "Status indicator for repositories and builds",
+      "variants": [
+        {
+          "name": "success",
+          "style": {
+            "background": "success",
+            "width": "8px",
+            "height": "8px",
+            "borderRadius": "50%",
+            "display": "inline-block"
+          }
+        },
+        {
+          "name": "error",
+          "style": {
+            "background": "error",
+            "width": "8px",
+            "height": "8px",
+            "borderRadius": "50%",
+            "display": "inline-block"
+          }
+        },
+        {
+          "name": "warning",
+          "style": {
+            "background": "warning",
+            "width": "8px",
+            "height": "8px",
+            "borderRadius": "50%",
+            "display": "inline-block"
+          }
+        }
+      ],
+      "states": [],
+      "accessibility": {
+        "ariaLabel": "required status description",
+        "role": "status"
+      }
+    },
+    {
+      "name": "NavigationItem",
+      "type": "button",
+      "description": "Sidebar navigation item with active state",
+      "variants": [
+        {
+          "name": "default",
+          "style": {
+            "background": "transparent",
+            "color": "neutral-300",
+            "padding": "8px 16px",
+            "borderRadius": "6px",
+            "fontSize": "0.875rem",
+            "fontWeight": 500,
+            "width": "100%",
+            "textAlign": "left",
+            "border": "none"
+          }
+        },
+        {
+          "name": "active",
+          "style": {
+            "background": "primary-600/10",
+            "color": "primary-400",
+            "padding": "8px 16px",
+            "borderRadius": "6px",
+            "fontSize": "0.875rem",
+            "fontWeight": 500,
+            "width": "100%",
+            "textAlign": "left",
+            "border": "none"
+          }
+        }
+      ],
+      "states": [
+        "hover",
+        "active",
+        "focus"
+      ],
+      "accessibility": {
+        "focusVisible": "2px solid primary-500",
+        "ariaLabel": "navigation item",
+        "ariaCurrent": "page for active items"
+      }
+    },
+    {
+      "name": "ChatMessage",
+      "type": "div",
+      "description": "Chat message bubble for AI assistant",
+      "variants": [
+        {
+          "name": "user",
+          "style": {
+            "background": "primary-600",
+            "color": "white",
+            "padding": "12px 16px",
+            "borderRadius": "12px 12px 4px 12px",
+            "fontSize": "0.875rem",
+            "marginLeft": "auto",
+            "maxWidth": "80%"
+          }
+        },
+        {
+          "name": "assistant",
+          "style": {
+            "background": "neutral-800",
+            "color": "neutral-100",
+            "padding": "12px 16px",
+            "borderRadius": "12px 12px 12px 4px",
+            "fontSize": "0.875rem",
+            "maxWidth": "80%",
+            "border": "1px solid neutral-700"
+          }
+        }
+      ],
+      "states": [],
+      "accessibility": {
+        "ariaLabel": "chat message",
+        "role": "log"
+      }
+    }
+  ],
+  "accessibilityNotes": [
+    "All interactive elements have focus indicators with 2px solid primary-500 outline",
+    "Color contrast ratios meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)",
+    "Semantic HTML structure with proper heading hierarchy and landmarks",
+    "Full keyboard navigation support with logical tab order",
+    "Screen reader friendly with proper ARIA labels and roles",
+    "Status indicators include descriptive aria-labels",
+    "Code blocks are properly labeled and accessible via keyboard",
+    "Chat interface follows chat accessibility patterns with proper roles",
+    "Minimum touch target size of 44px for mobile interactions",
+    "Focus management for modal and panel interactions"
+  ]
+}
