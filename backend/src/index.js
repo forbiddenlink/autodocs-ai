@@ -168,6 +168,14 @@ app.get("/api/metrics", async (req, res) => {
 
 // API routes
 app.use("/api/auth", authRoutes);
+
+// Development-only auth routes (for testing without real OAuth/database)
+if (process.env.NODE_ENV !== "production") {
+  import("./routes/auth-dev.js").then((module) => {
+    app.use("/api/auth-dev", module.default);
+  });
+}
+
 // app.use('/api/repos', repoRoutes);  // To be added
 // app.use('/api/webhooks', webhookRoutes);  // To be added
 

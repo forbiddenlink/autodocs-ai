@@ -68,42 +68,202 @@ router.get("/github", (req, res) => {
 /**
  * GET /auth/github/callback
  * Handles the OAuth callback from GitHub
- * This is a placeholder for now - will be fully implemented in Test #4
+ * Exchanges the authorization code for an access token, fetches user data, and creates a session
  */
 router.get("/github/callback", async (req, res) => {
   const { code, state } = req.query;
 
-  // Basic validation for now
-  if (!code) {
-    return res.status(400).json({ error: "No authorization code provided" });
+  try {
+    // Validate authorization code
+    if (!code) {
+      logger.warn("OAuth callback: No authorization code provided");
+      return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}?error=no_code`);
+    }
+
+    // Validate state token (CSRF protection)
+    if (!state || !stateStore.has(state)) {
+      logger.warn("OAuth callback: Invalid or expired state token", { state });
+      return res.redirect(
+        `${process.env.FRONTEND_URL || "http://localhost:3000"}?error=invalid_state`
+      );
+    }
+
+    // Clean up used state
+    stateStore.delete(state);
+
+    // Exchange authorization code for access token
+    logger.info("Exchanging authorization code for access token");
+
+    const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.error) {
+      logger.error("GitHub token exchange failed", {
+        error: tokenData.error,
+        description: tokenData.error_description,
+      });
+      return res.redirect(
+        `${process.env.FRONTEND_URL || "http://localhost:3000"}?error=token_exchange_failed`
+      );
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Fetch user data from GitHub
+    logger.info("Fetching user data from GitHub");
+
+    const userResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    const githubUser = await userResponse.json();
+
+    // Fetch user email if not public
+    let userEmail = githubUser.email;
+
+    if (!userEmail) {
+      const emailResponse = await fetch("https://api.github.com/user/emails", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      });
+
+      const emails = await emailResponse.json();
+      const primaryEmail = emails.find((email) => email.primary);
+      userEmail = primaryEmail ? primaryEmail.email : emails[0]?.email;
+    }
+
+    if (!userEmail) {
+      logger.error("Could not retrieve user email from GitHub");
+      return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}?error=no_email`);
+    }
+
+    // Create or update user in database
+    const { createOrUpdateUser } = await import("../services/userService.js");
+
+    const user = await createOrUpdateUser({
+      githubId: githubUser.id.toString(),
+      email: userEmail,
+      name: githubUser.name || githubUser.login,
+      avatarUrl: githubUser.avatar_url,
+    });
+
+    logger.info("User authenticated successfully", {
+      userId: user.id,
+      githubId: user.github_id,
+      correlationId: req.headers["x-correlation-id"],
+    });
+
+    // Generate JWT token
+    const { generateToken } = await import("../middleware/auth.js");
+    const token = generateToken(user, "7d");
+
+    // Set secure HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Redirect to dashboard
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+    logger.info("Redirecting to dashboard", { userId: user.id, dashboardUrl });
+
+    res.redirect(dashboardUrl);
+  } catch (error) {
+    logger.error("OAuth callback error", {
+      error: error.message,
+      stack: error.stack,
+      correlationId: req.headers["x-correlation-id"],
+    });
+
+    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}?error=auth_failed`);
   }
-
-  if (!state || !stateStore.has(state)) {
-    return res.status(400).json({ error: "Invalid or expired state token" });
-  }
-
-  // Clean up used state
-  stateStore.delete(state);
-
-  // For now, just return a placeholder response
-  // Full implementation will be in Test #4
-  res.json({
-    message: "OAuth callback received (full implementation pending)",
-    code: code.substring(0, 10) + "...", // Show partial code for verification
-  });
 });
 
 /**
  * GET /auth/status
  * Returns authentication status for the current session
  */
-router.get("/status", (req, res) => {
-  // Check if user has valid token via authenticateToken middleware
-  // For now, return not authenticated (will be updated when full OAuth is implemented)
-  res.json({
-    authenticated: false,
-    user: null,
-  });
+router.get("/status", async (req, res) => {
+  try {
+    // Check for token in cookies or Authorization header
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.json({
+        authenticated: false,
+        user: null,
+      });
+    }
+
+    // Verify token
+    const jwt = (await import("jsonwebtoken")).default;
+    const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+
+    try {
+      const decoded = jwt.verify(token, secret);
+
+      // Fetch full user data
+      const { findUserById } = await import("../services/userService.js");
+      const user = await findUserById(decoded.id);
+
+      if (!user) {
+        return res.json({
+          authenticated: false,
+          user: null,
+        });
+      }
+
+      // Return user data without sensitive info
+      res.json({
+        authenticated: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          avatarUrl: user.avatar_url,
+          githubId: user.github_id,
+        },
+      });
+    } catch (error) {
+      // Token invalid or expired
+      logger.info("Invalid or expired token in status check", {
+        error: error.message,
+      });
+
+      res.json({
+        authenticated: false,
+        user: null,
+      });
+    }
+  } catch (error) {
+    logger.error("Error checking auth status", {
+      error: error.message,
+      correlationId: req.headers["x-correlation-id"],
+    });
+
+    res.status(500).json({
+      error: "Failed to check authentication status",
+    });
+  }
 });
 
 /**
