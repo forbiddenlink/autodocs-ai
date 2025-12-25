@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   const handleGitHubLogin = () => {
     // Redirect to backend OAuth endpoint
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     window.location.href = `${apiUrl}/api/auth/github`;
   };
 

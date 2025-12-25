@@ -32,7 +32,7 @@ export default function SettingsPage() {
 
         if (isDevelopment) {
           authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/status-dev`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth-dev/status-dev`,
             {
               credentials: "include",
             }
@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
         if (!authResponse || !authResponse.ok) {
           authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/status`,
             {
               credentials: "include",
             }

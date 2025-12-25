@@ -30,7 +30,7 @@ export function Navigation() {
             {/* Development login for testing (only shown in dev) */}
             {typeof window !== "undefined" && window.location.hostname === "localhost" && (
               <a
-                href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/github/dev-login`}
+                href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth-dev/github/dev-login`}
                 className="px-2 py-1 text-xs bg-yellow-500 text-black rounded font-medium hover:bg-yellow-400 transition inline-block text-center"
                 title="Development login (bypasses OAuth)"
               >
@@ -38,7 +38,7 @@ export function Navigation() {
               </a>
             )}
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/github`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/github`}
               className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition inline-block text-center focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
             >
               Sign in with GitHub

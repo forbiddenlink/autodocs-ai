@@ -1,5 +1,5 @@
 "use client";
-// Force rebuild - added TOC feature
+// Force rebuild - fixed backend port configuration to 4000
 
 import { Navigation } from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -61,7 +61,7 @@ export default function RepositoryPage() {
 
         if (isDevelopment) {
           authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/status-dev`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth-dev/status-dev`,
             {
               credentials: "include",
             }
@@ -70,7 +70,7 @@ export default function RepositoryPage() {
 
         if (!authResponse || !authResponse.ok) {
           authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/status`,
             {
               credentials: "include",
             }
