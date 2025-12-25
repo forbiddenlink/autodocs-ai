@@ -150,6 +150,7 @@ autodocs-ai/
 ## 📚 Documentation
 
 - **[Deployment Guide](./DEPLOYMENT.md)** - Comprehensive CI/CD pipeline and deployment procedures
+- **[Zero-Downtime Deployment](./ZERO_DOWNTIME_DEPLOYMENT.md)** - Zero-downtime deployment strategies and implementation
 - **[Style Guide](./STYLE_GUIDE.md)** - Code style standards, linting, and formatting rules
 - **[Development Guide](./DEVELOPMENT_GUIDE.md)** - Workflow for autonomous development agents
 - **[Environment Parity](./ENVIRONMENT_PARITY.md)** - Maintaining consistency across environments

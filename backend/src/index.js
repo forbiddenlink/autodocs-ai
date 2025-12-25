@@ -162,6 +162,36 @@ app.get("/api/metrics", async (req, res) => {
 // app.use('/api/repos', repoRoutes);
 // app.use('/api/webhooks', webhookRoutes);
 
+// Track server readiness for health checks
+let isReady = false;
+let isShuttingDown = false;
+
+// Readiness probe endpoint (for deployment orchestrators)
+app.get("/readiness", (req, res) => {
+  if (isReady && !isShuttingDown) {
+    res.status(200).json({
+      status: "ready",
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    res.status(503).json({
+      status: "not_ready",
+      shuttingDown: isShuttingDown,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Liveness probe endpoint (for deployment orchestrators)
+app.get("/liveness", (req, res) => {
+  // As long as the process is running, we're alive
+  res.status(200).json({
+    status: "alive",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
 // Test error endpoint (for testing Sentry)
 app.get("/test-error", (req, res) => {
   throw new Error("Test error for Sentry integration");
@@ -177,10 +207,68 @@ app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`🚀 AutoDocs Backend running on port ${PORT}`);
   logger.info(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
   logger.info(`🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:3000"}`);
+
+  // Mark server as ready after startup
+  isReady = true;
+  logger.info("✅ Server is ready to accept connections");
+});
+
+// Graceful shutdown handler
+const gracefulShutdown = async (signal) => {
+  logger.info(`${signal} received. Starting graceful shutdown...`);
+  isShuttingDown = true;
+
+  // Stop accepting new connections immediately
+  server.close(async () => {
+    logger.info("HTTP server closed. No longer accepting new connections.");
+
+    try {
+      // Close database connections
+      logger.info("Closing database connection pool...");
+      await pool.end();
+      logger.info("Database connection pool closed.");
+
+      logger.info("✅ Graceful shutdown completed successfully");
+      process.exit(0);
+    } catch (error) {
+      logger.error("Error during graceful shutdown", {
+        error: error.message,
+        stack: error.stack,
+      });
+      process.exit(1);
+    }
+  });
+
+  // Force shutdown after 30 seconds if graceful shutdown hasn't completed
+  setTimeout(() => {
+    logger.error("Graceful shutdown timed out after 30s. Forcing shutdown.");
+    process.exit(1);
+  }, 30000);
+};
+
+// Listen for termination signals
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+// Handle uncaught exceptions
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught Exception", {
+    error: error.message,
+    stack: error.stack,
+  });
+  gracefulShutdown("UNCAUGHT_EXCEPTION");
+});
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled Promise Rejection", {
+    reason: reason,
+    promise: promise,
+  });
 });
 
 export default app;

@@ -2924,7 +2924,7 @@
     ],
     "complexity": "complex",
     "dependencies": [],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

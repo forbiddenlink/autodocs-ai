@@ -6,6 +6,7 @@ This document describes the automated deployment process for AutoDocs AI.
 
 - [Overview](#overview)
 - [Architecture](#architecture)
+- [Zero-Downtime Deployment](#zero-downtime-deployment)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Environments](#environments)
 - [Deployment Process](#deployment-process)
@@ -52,6 +53,38 @@ AutoDocs AI uses a fully automated CI/CD pipeline powered by GitHub Actions. Eve
 │Frontend│ │ Backend │
 └────────┘ └─────────┘
 ```
+
+## Zero-Downtime Deployment
+
+AutoDocs AI implements **zero-downtime deployment** to ensure uninterrupted service during updates.
+
+### Key Features
+
+- **Graceful Shutdown**: Existing connections complete before server shutdown
+- **Health Checks**: Readiness (`/readiness`) and liveness (`/liveness`) probes
+- **Rolling Updates**: New instances start before old ones stop
+- **Load Balancing**: Multiple replicas handle traffic during deployment
+- **Automatic Rollback**: Failed deployments roll back automatically
+
+### Health Check Endpoints
+
+- `/health` - Overall system health (database, memory, uptime)
+- `/readiness` - Instance readiness for traffic (200 = ready, 503 = not ready)
+- `/liveness` - Process health check (always returns 200 if running)
+
+### How It Works
+
+1. New version is deployed to Railway
+2. Railway starts new replicas (2 instances)
+3. Health checks verify new instances are ready (`/readiness`)
+4. Traffic routes to new instances
+5. Old instances receive SIGTERM and stop accepting new connections
+6. Old instances complete existing requests (30s timeout)
+7. Old instances shut down gracefully
+
+**Result**: Zero service interruption for users during deployment.
+
+For detailed information on zero-downtime deployment, see [ZERO_DOWNTIME_DEPLOYMENT.md](./ZERO_DOWNTIME_DEPLOYMENT.md).
 
 ## CI/CD Pipeline
 
