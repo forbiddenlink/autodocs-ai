@@ -30,6 +30,7 @@ CREATE TABLE schema_migrations (
 ```
 
 **Features:**
+
 - ✅ Tracks which migrations have been applied
 - ✅ Stores checksums to detect file modifications
 - ✅ Records execution time for performance monitoring
@@ -46,6 +47,7 @@ npm run migrate
 ```
 
 This command:
+
 1. Creates the `schema_migrations` tracking table if needed
 2. Checks which migrations have already been applied
 3. Runs pending migrations in order
@@ -53,6 +55,7 @@ This command:
 5. Rolls back on error
 
 **Example Output:**
+
 ```
 🔄 Running database migrations...
 ✅ Migrations tracking table ready
@@ -85,12 +88,14 @@ npm run migrate:rollback
 ```
 
 This command:
+
 1. Finds the last applied migration
 2. Looks for the corresponding `.down.sql` file
 3. Executes the rollback SQL in a transaction
 4. Removes the migration record from tracking table
 
 **Example Output:**
+
 ```
 🔄 Rolling back last migration...
 Found last migration: 003_add_repo_settings
@@ -99,6 +104,7 @@ Found last migration: 003_add_repo_settings
 ```
 
 **Note:** If no rollback file exists, you'll need to manually rollback:
+
 ```sql
 -- Manually reverse the migration changes
 -- Then remove the tracking record:
@@ -222,6 +228,7 @@ Migrations run in transactions, so a failed migration automatically rolls back:
 ```
 
 **Solution:**
+
 1. Fix the SQL syntax error in the migration file
 2. Run migrations again (failed migration won't be recorded)
 
@@ -327,6 +334,7 @@ jobs:
 ---
 
 **For more information, see:**
+
 - [Database Configuration](backend/src/config/database.js)
 - [Migration Script](backend/src/scripts/migrate.js)
 - [Rollback Script](backend/src/scripts/rollback.js)

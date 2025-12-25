@@ -18,7 +18,7 @@ export function Navigation() {
               Features
             </button>
             <a
-              href="http://localhost:3001/api/auth/github"
+              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/github`}
               className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition inline-block text-center"
             >
               Sign in with GitHub

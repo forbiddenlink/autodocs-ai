@@ -7,6 +7,7 @@ This document outlines the backup and restore procedures for AutoDocs AI. All cr
 ## Critical Data Components
 
 ### 1. PostgreSQL Database
+
 - **users** - User accounts and authentication data
 - **repositories** - Repository metadata and sync status
 - **documents** - Generated documentation content
@@ -16,10 +17,12 @@ This document outlines the backup and restore procedures for AutoDocs AI. All cr
 - **schema_migrations** - Migration history
 
 ### 2. Configuration Files (Not in Backups)
+
 - `.env` files - Must be stored separately (secrets manager)
 - API keys - Stored in environment variables
 
 ### 3. External Services (Separate Backups)
+
 - **Pinecone** - Vector embeddings (has its own backup mechanisms)
 - **GitHub** - Source code (externally hosted)
 
@@ -79,12 +82,14 @@ crontab -e
 #### Railway (Production Backend)
 
 Railway provides automated backups:
+
 - **Frequency**: Daily snapshots
 - **Retention**: 7 days (free tier), 30 days (paid)
 - **Location**: Same region as database
 - **Recovery**: One-click restore from dashboard
 
 **To enable:**
+
 1. Go to Railway dashboard
 2. Select your PostgreSQL service
 3. Navigate to "Backups" tab
@@ -94,6 +99,7 @@ Railway provides automated backups:
 #### Vercel (Frontend - No Database)
 
 Vercel deployments are stateless and use Git for version control:
+
 - **Source Code**: Backed up in GitHub repository
 - **Environment Variables**: Export and store securely
 - **Build Cache**: Automatically managed
@@ -276,16 +282,19 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
 ## Backup Frequency Guidelines
 
 ### Development Environment
+
 - **Frequency**: Daily (or before major changes)
 - **Retention**: 7 days
 - **Storage**: Local filesystem
 
 ### Staging Environment
+
 - **Frequency**: Every 6 hours
 - **Retention**: 14 days
 - **Storage**: Cloud storage (S3, GCS, etc.)
 
 ### Production Environment
+
 - **Frequency**:
   - Continuous WAL archiving (PostgreSQL)
   - Full backup every 6 hours
@@ -302,11 +311,13 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
 ## Disaster Recovery Plan
 
 ### RTO (Recovery Time Objective)
+
 - **Development**: 4 hours
 - **Staging**: 2 hours
 - **Production**: 30 minutes
 
 ### RPO (Recovery Point Objective)
+
 - **Development**: 24 hours (daily backups)
 - **Staging**: 6 hours
 - **Production**: 5 minutes (continuous archiving)
@@ -319,18 +330,21 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
    - Notify stakeholders
 
 2. **Provision Infrastructure**
+
    ```bash
    # Create new database instance
    createdb autodocs_recovery
    ```
 
 3. **Restore Data**
+
    ```bash
    # Restore from latest backup
    gunzip -c latest_backup.sql.gz | psql autodocs_recovery
    ```
 
 4. **Validate Data**
+
    ```bash
    # Run validation queries
    psql autodocs_recovery -c "SELECT COUNT(*) FROM users;"
@@ -339,12 +353,14 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
    ```
 
 5. **Update Configuration**
+
    ```bash
    # Update DATABASE_URL in .env
    DATABASE_URL=postgresql://localhost/autodocs_recovery
    ```
 
 6. **Restart Services**
+
    ```bash
    # Restart backend
    cd backend && npm restart
@@ -363,6 +379,7 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
 ### Storage Locations
 
 #### Local Development
+
 ```bash
 /var/backups/autodocs/
 ├── autodocs_20241224_020000.sql.gz
@@ -373,6 +390,7 @@ gunzip -c backup_20241224.sql.gz | grep "CREATE TABLE" | wc -l
 #### Cloud Storage (Production)
 
 **AWS S3:**
+
 ```bash
 s3://autodocs-backups/
 ├── production/
@@ -387,6 +405,7 @@ s3://autodocs-backups/
 ```
 
 **Google Cloud Storage:**
+
 ```bash
 gs://autodocs-backups/
 ├── production/
@@ -450,6 +469,7 @@ echo "✅ Monthly restore test completed successfully"
 ### Quarterly Disaster Recovery Drill
 
 Full DR simulation:
+
 1. Backup production database
 2. Provision new infrastructure
 3. Restore from backup
@@ -487,9 +507,10 @@ du -h /var/backups/autodocs/*.sql.gz | sort -h
 ### Automated Alerts
 
 Set up alerts for:
+
 - ❌ Backup failures
-- ⚠️  Backup size anomalies
-- ⚠️  Storage space running low
+- ⚠️ Backup size anomalies
+- ⚠️ Storage space running low
 - ✅ Successful restores (testing)
 
 ## Security Considerations
@@ -515,6 +536,7 @@ chown postgres:postgres /var/backups/autodocs/*.sql.gz
 ### Audit Logging
 
 Log all backup and restore operations:
+
 - Who performed the operation
 - When it was performed
 - What was backed up/restored
@@ -523,22 +545,26 @@ Log all backup and restore operations:
 ## Backup Checklist
 
 ### Daily Tasks
+
 - [ ] Verify automated backups completed
 - [ ] Check backup file sizes
 - [ ] Review backup logs for errors
 
 ### Weekly Tasks
+
 - [ ] Test restore from random backup
 - [ ] Clean up old backups per retention policy
 - [ ] Verify backup encryption
 
 ### Monthly Tasks
+
 - [ ] Full restore test to separate environment
 - [ ] Review and update backup procedures
 - [ ] Audit backup access logs
 - [ ] Test disaster recovery procedures
 
 ### Quarterly Tasks
+
 - [ ] Full DR drill
 - [ ] Review and update RTO/RPO
 - [ ] Test cross-region restore
@@ -547,6 +573,7 @@ Log all backup and restore operations:
 ## Documentation
 
 Keep this documentation updated with:
+
 - Current backup schedules
 - Storage locations
 - Access credentials (in secure vault)
@@ -556,10 +583,12 @@ Keep this documentation updated with:
 ## Support Contacts
 
 **Backup Issues:**
+
 - DevOps Team: devops@autodocs.ai
 - On-Call: +1-555-0100
 
 **Data Recovery:**
+
 - Database Admin: dba@autodocs.ai
 - Emergency: +1-555-0911
 

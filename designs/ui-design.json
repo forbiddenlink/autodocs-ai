@@ -18,13 +18,7 @@
         },
         {
           "type": "navigation",
-          "items": [
-            "Repositories",
-            "Documentation",
-            "Search",
-            "AI Chat",
-            "Settings"
-          ],
+          "items": ["Repositories", "Documentation", "Search", "AI Chat", "Settings"],
           "style": {
             "fontSize": "0.875rem",
             "fontWeight": 500,
@@ -33,11 +27,7 @@
         },
         {
           "type": "repository-list",
-          "components": [
-            "repo-item",
-            "status-indicator",
-            "star-count"
-          ],
+          "components": ["repo-item", "status-indicator", "star-count"],
           "style": {
             "fontSize": "0.75rem",
             "color": "neutral-400"
@@ -75,11 +65,7 @@
         },
         {
           "type": "actions",
-          "buttons": [
-            "ai-chat",
-            "settings",
-            "user-menu"
-          ],
+          "buttons": ["ai-chat", "settings", "user-menu"],
           "style": {
             "gap": "8px"
           }
@@ -238,22 +224,7 @@
   },
   "spacing": {
     "unit": 4,
-    "scale": [
-      0,
-      4,
-      8,
-      12,
-      16,
-      20,
-      24,
-      32,
-      40,
-      48,
-      64,
-      80,
-      96,
-      128
-    ]
+    "scale": [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128]
   },
   "components": [
     {
@@ -298,12 +269,7 @@
           }
         }
       ],
-      "states": [
-        "hover",
-        "active",
-        "disabled",
-        "focus"
-      ],
+      "states": ["hover", "active", "disabled", "focus"],
       "accessibility": {
         "focusVisible": "2px solid primary-500",
         "ariaLabel": "required for icon-only buttons",
@@ -328,11 +294,7 @@
           }
         }
       ],
-      "states": [
-        "focus",
-        "disabled",
-        "error"
-      ],
+      "states": ["focus", "disabled", "error"],
       "accessibility": {
         "focusVisible": "2px solid primary-500",
         "ariaLabel": "Search documentation",
@@ -358,9 +320,7 @@
           }
         }
       ],
-      "states": [
-        "hover"
-      ],
+      "states": ["hover"],
       "accessibility": {
         "ariaLabel": "Code example",
         "tabindex": "0",
@@ -443,11 +403,7 @@
           }
         }
       ],
-      "states": [
-        "hover",
-        "active",
-        "focus"
-      ],
+      "states": ["hover", "active", "focus"],
       "accessibility": {
         "focusVisible": "2px solid primary-500",
         "ariaLabel": "navigation item",

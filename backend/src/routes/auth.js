@@ -1,5 +1,6 @@
 import express from "express";
 import crypto from "crypto";
+import { logger } from "../utils/logger.js";
 
 const router = express.Router();
 
@@ -51,7 +52,11 @@ router.get("/github", (req, res) => {
     // Redirect to GitHub
     res.redirect(githubAuthUrl.toString());
   } catch (error) {
-    console.error("Error initiating GitHub OAuth:", error);
+    logger.error("Error initiating GitHub OAuth", {
+      error: error.message,
+      stack: error.stack,
+      correlationId: req.headers["x-correlation-id"],
+    });
     res.status(500).json({
       error: "Failed to initiate GitHub authentication",
       message: error.message,

@@ -30,6 +30,7 @@ Implement features from `feature_list.json` one at a time, test thoroughly, and 
 ```
 
 **Priority Order**:
+
 1. Features with no dependencies
 2. Features with satisfied dependencies
 3. Simpler features before complex ones
@@ -52,6 +53,7 @@ Implement features from `feature_list.json` one at a time, test thoroughly, and 
 ### 4. Mark as Passing
 
 Only change `"passes": false` to `"passes": true` when:
+
 - ✅ All test steps pass
 - ✅ No errors in console
 - ✅ Code is clean and commented
@@ -75,14 +77,18 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## 📊 Feature Categories
 
 ### Functional Features (category: "functional")
+
 Test that features work correctly:
+
 - User flows
 - API endpoints
 - Data persistence
 - Business logic
 
 ### Style Features (category: "style")
+
 Test visual and UX requirements:
+
 - Responsive design
 - Visual consistency
 - Animations
@@ -91,18 +97,21 @@ Test visual and UX requirements:
 ## 🔧 Complexity Levels
 
 ### Simple (2-5 steps)
+
 - UI changes
 - Button clicks
 - Basic forms
 - Simple navigation
 
 ### Medium (5-10 steps)
+
 - Multi-step workflows
 - Form validation
 - Basic API integration
 - State management
 
 ### Complex (10+ steps)
+
 - AI integration
 - External APIs
 - Complex state
@@ -152,18 +161,21 @@ backend/src/
 ## 🔑 Key Technologies
 
 ### Frontend
+
 - **Next.js 14** - App Router, Server Components
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Utility-first CSS
 - **shadcn/ui** - Component library
 
 ### Backend
+
 - **Express** - Web framework
 - **PostgreSQL** - Relational database
 - **Pinecone** - Vector database
 - **JWT** - Authentication tokens
 
 ### AI & Analysis
+
 - **Claude API** - AI documentation generation
 - **Tree-sitter** - Code parsing
 - **RAG** - Retrieval-Augmented Generation
@@ -171,6 +183,7 @@ backend/src/
 ## 📝 Code Conventions
 
 ### TypeScript/JavaScript
+
 - Use TypeScript for frontend
 - Use ES modules (import/export)
 - Async/await over promises
@@ -178,6 +191,7 @@ backend/src/
 - Comments for complex logic
 
 ### React Components
+
 ```tsx
 // Use functional components
 export default function ComponentName() {
@@ -185,7 +199,7 @@ export default function ComponentName() {
   const [state, setState] = useState();
 
   // Event handlers
-  const handleClick = () => { };
+  const handleClick = () => {};
 
   // Render
   return <div>...</div>;
@@ -193,9 +207,10 @@ export default function ComponentName() {
 ```
 
 ### API Routes
+
 ```javascript
 // Express route example
-router.get('/endpoint', authenticate, async (req, res) => {
+router.get("/endpoint", authenticate, async (req, res) => {
   try {
     // Logic here
     res.json({ data });
@@ -245,6 +260,7 @@ Before marking feature as passing:
 ## 📈 Progress Tracking
 
 Update `claude-progress.txt` with:
+
 - Features completed this session
 - Current feature count (X/200 passing)
 - Blockers or issues encountered
@@ -253,23 +269,27 @@ Update `claude-progress.txt` with:
 ## 🎓 Best Practices
 
 ### Code Quality
+
 - Write self-documenting code
 - Add comments for complex logic
 - Follow DRY principle
 - Keep functions small and focused
 
 ### Git
+
 - Commit frequently
 - Descriptive commit messages
 - One feature per commit
 
 ### Testing
+
 - Test happy path
 - Test error cases
 - Test edge cases
 - Test as a user would
 
 ### UI/UX
+
 - Follow design system (shadcn/ui)
 - Consistent spacing and typography
 - Responsive design
@@ -278,16 +298,19 @@ Update `claude-progress.txt` with:
 ## 🆘 Getting Unstuck
 
 ### If a feature is too complex:
+
 1. Break it into smaller sub-tasks
 2. Implement incrementally
 3. Test each part before moving on
 
 ### If dependencies aren't clear:
+
 1. Check the dependencies array
 2. Read related feature descriptions
 3. Implement simpler features first
 
 ### If tests are failing:
+
 1. Review test steps carefully
 2. Check for typos or logic errors
 3. Use browser dev tools to debug
@@ -307,6 +330,7 @@ Before ending your session:
 ## 🎉 Success Metrics
 
 You're doing great if:
+
 - ✅ Features pass all their test steps
 - ✅ No console errors
 - ✅ Code is clean and maintainable

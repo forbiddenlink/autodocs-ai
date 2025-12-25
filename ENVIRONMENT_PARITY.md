@@ -7,6 +7,7 @@ This document ensures consistency between development, staging, and production e
 ## Environment Definitions
 
 ### Development (Local)
+
 - **Purpose**: Local development and testing
 - **Access**: All developers
 - **Data**: Synthetic/test data
@@ -15,6 +16,7 @@ This document ensures consistency between development, staging, and production e
   - Backend: `http://localhost:3001`
 
 ### Staging
+
 - **Purpose**: Pre-production testing and QA
 - **Access**: Development team + QA
 - **Data**: Anonymized production-like data
@@ -23,6 +25,7 @@ This document ensures consistency between development, staging, and production e
   - Backend: `https://api-staging.autodocs.ai`
 
 ### Production
+
 - **Purpose**: Live application serving end users
 - **Access**: DevOps team only (automated deployments)
 - **Data**: Real customer data
@@ -46,12 +49,14 @@ All environments must use the same versions:
 ```
 
 **Enforcement:**
+
 - Use `.nvmrc` file for Node version
 - Lock dependencies with `package-lock.json`
 - Document versions in README
 - CI/CD checks version compatibility
 
 **Verification:**
+
 ```bash
 # Check Node version
 node --version  # Should match across environments
@@ -66,6 +71,7 @@ psql --version
 ### ✅ Dependencies
 
 **Frontend Dependencies** (`package.json`):
+
 ```json
 {
   "dependencies": {
@@ -78,6 +84,7 @@ psql --version
 ```
 
 **Backend Dependencies** (`backend/package.json`):
+
 ```json
 {
   "dependencies": {
@@ -90,6 +97,7 @@ psql --version
 ```
 
 **Parity Rules:**
+
 - ✅ Identical `package.json` across environments
 - ✅ Committed `package-lock.json` for reproducibility
 - ✅ No `devDependencies` in production builds
@@ -101,34 +109,34 @@ psql --version
 
 **Deployment Platform**: Vercel (all environments)
 
-| Setting | Development | Staging | Production |
-|---------|-------------|---------|------------|
-| **Node Version** | 20.19.5 | 20.19.5 | 20.19.5 |
-| **Build Command** | `next dev` | `next build` | `next build` |
-| **Output** | Development | Static/SSR | Static/SSR |
-| **Framework** | Next.js | Next.js | Next.js |
-| **Region** | N/A | us-east-1 | us-east-1 |
+| Setting           | Development | Staging      | Production   |
+| ----------------- | ----------- | ------------ | ------------ |
+| **Node Version**  | 20.19.5     | 20.19.5      | 20.19.5      |
+| **Build Command** | `next dev`  | `next build` | `next build` |
+| **Output**        | Development | Static/SSR   | Static/SSR   |
+| **Framework**     | Next.js     | Next.js      | Next.js      |
+| **Region**        | N/A         | us-east-1    | us-east-1    |
 
 #### Backend (Express)
 
 **Deployment Platform**: Railway (staging/production), Local (development)
 
-| Setting | Development | Staging | Production |
-|---------|-------------|---------|------------|
-| **Node Version** | 20.19.5 | 20.19.5 | 20.19.5 |
-| **Process Manager** | nodemon | Node | Node |
-| **Instances** | 1 | 2 | 4+ |
-| **Region** | N/A | us-east-1 | us-east-1 |
+| Setting             | Development | Staging   | Production |
+| ------------------- | ----------- | --------- | ---------- |
+| **Node Version**    | 20.19.5     | 20.19.5   | 20.19.5    |
+| **Process Manager** | nodemon     | Node      | Node       |
+| **Instances**       | 1           | 2         | 4+         |
+| **Region**          | N/A         | us-east-1 | us-east-1  |
 
 #### Database (PostgreSQL)
 
-| Setting | Development | Staging | Production |
-|---------|-------------|---------|------------|
-| **Version** | 14.x | 14.x | 14.x |
-| **Provider** | Local | Railway | Railway |
-| **Backups** | Manual | Daily | Hourly |
-| **Replicas** | 0 | 0 | 2 |
-| **Connection Pool** | 20 | 50 | 100 |
+| Setting             | Development | Staging | Production |
+| ------------------- | ----------- | ------- | ---------- |
+| **Version**         | 14.x        | 14.x    | 14.x       |
+| **Provider**        | Local       | Railway | Railway    |
+| **Backups**         | Manual      | Daily   | Hourly     |
+| **Replicas**        | 0           | 0       | 2          |
+| **Connection Pool** | 20          | 50      | 100        |
 
 ### ✅ Environment Variables
 
@@ -168,6 +176,7 @@ CDN_URL=xxx
 ```
 
 **Environment-Specific Files:**
+
 ```
 .env.local           # Development (not in git)
 .env.staging         # Staging (not in git)
@@ -176,6 +185,7 @@ CDN_URL=xxx
 ```
 
 **Verification Script** (`scripts/check-env.sh`):
+
 ```bash
 #!/bin/bash
 # Verify all required environment variables are set
@@ -201,21 +211,25 @@ echo "✅ All required environment variables are set"
 ### ✅ Data Similarity
 
 #### Development
+
 - Small synthetic dataset
 - Test users with known credentials
 - Sample repositories (public)
 
 #### Staging
+
 - Anonymized production data (last 30 days)
 - Similar data volume to production
 - PII removed/anonymized
 
 #### Production
+
 - Real customer data
 - Full historical data
 - PII protection enabled
 
 **Data Refresh:**
+
 ```bash
 # Refresh staging data from production (monthly)
 # 1. Backup production
@@ -232,13 +246,13 @@ psql staging_db < backup_anonymized.sql
 
 All external services should have environment-specific configurations:
 
-| Service | Development | Staging | Production |
-|---------|-------------|---------|------------|
-| **GitHub OAuth** | Test App | Staging App | Production App |
-| **Claude API** | Development Key | Staging Key | Production Key |
-| **Pinecone** | Dev Index | Staging Index | Prod Index |
-| **Sentry** | Dev Project | Staging Project | Prod Project |
-| **CDN** | Disabled | CloudFlare | CloudFlare |
+| Service          | Development     | Staging         | Production     |
+| ---------------- | --------------- | --------------- | -------------- |
+| **GitHub OAuth** | Test App        | Staging App     | Production App |
+| **Claude API**   | Development Key | Staging Key     | Production Key |
+| **Pinecone**     | Dev Index       | Staging Index   | Prod Index     |
+| **Sentry**       | Dev Project     | Staging Project | Prod Project   |
+| **CDN**          | Disabled        | CloudFlare      | CloudFlare     |
 
 ### ✅ Feature Flags
 
@@ -247,14 +261,15 @@ Use environment variables for feature flags:
 ```javascript
 // backend/src/config/features.js
 export const features = {
-  enableNewUI: process.env.FEATURE_NEW_UI === 'true',
-  enableAIChat: process.env.FEATURE_AI_CHAT === 'true',
-  enableWebhooks: process.env.FEATURE_WEBHOOKS === 'true',
-  rateLimit: parseInt(process.env.RATE_LIMIT || '100')
+  enableNewUI: process.env.FEATURE_NEW_UI === "true",
+  enableAIChat: process.env.FEATURE_AI_CHAT === "true",
+  enableWebhooks: process.env.FEATURE_WEBHOOKS === "true",
+  rateLimit: parseInt(process.env.RATE_LIMIT || "100"),
 };
 ```
 
 **Configuration:**
+
 - Development: All features enabled
 - Staging: Same as production (for testing)
 - Production: Controlled rollout
@@ -319,6 +334,7 @@ git revert <commit-hash>
 ### Version Locking
 
 **package.json:**
+
 ```json
 {
   "engines": {
@@ -329,11 +345,13 @@ git revert <commit-hash>
 ```
 
 **.nvmrc:**
+
 ```
 20.19.5
 ```
 
 **Docker (if using):**
+
 ```dockerfile
 FROM node:20.19.5-alpine
 ```
@@ -359,6 +377,7 @@ npm audit fix
 Use configuration files for infrastructure:
 
 **Vercel (vercel.json):**
+
 ```json
 {
   "version": 2,
@@ -375,6 +394,7 @@ Use configuration files for infrastructure:
 ```
 
 **Railway (railway.json):**
+
 ```json
 {
   "build": {
@@ -396,18 +416,19 @@ All environments use the same logging format:
 
 ```javascript
 // Structured JSON logs
-logger.info('Request processed', {
+logger.info("Request processed", {
   method: req.method,
   path: req.path,
   status: res.statusCode,
   duration: duration,
-  correlationId: req.correlationId
+  correlationId: req.correlationId,
 });
 ```
 
 ### Metrics
 
 Same metrics tracked across all environments:
+
 - Request duration
 - Error rates
 - Database query performance
@@ -415,6 +436,7 @@ Same metrics tracked across all environments:
 - CPU usage
 
 **Access:**
+
 - Development: `http://localhost:3001/metrics`
 - Staging: `https://api-staging.autodocs.ai/metrics`
 - Production: `https://api.autodocs.ai/metrics`
@@ -428,7 +450,7 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   release: process.env.GIT_COMMIT,
-  tracesSampleRate: 0.1
+  tracesSampleRate: 0.1,
 });
 ```
 
@@ -465,6 +487,7 @@ echo "✅ Parity check complete"
 ### Manual Verification
 
 **Monthly Checklist:**
+
 - [ ] Compare dependency versions across environments
 - [ ] Verify database schemas match
 - [ ] Check environment variable configurations
@@ -477,6 +500,7 @@ echo "✅ Parity check complete"
 ### ❌ Don't Do This
 
 1. **Different Node versions**
+
    ```bash
    # Development: Node 18
    # Production: Node 20
@@ -484,12 +508,14 @@ echo "✅ Parity check complete"
    ```
 
 2. **Missing environment variables**
+
    ```bash
    # Works locally but fails in production
    # ❌ Always use environment variables
    ```
 
 3. **Different dependency versions**
+
    ```bash
    # Development has updated package
    # Production still using old version
