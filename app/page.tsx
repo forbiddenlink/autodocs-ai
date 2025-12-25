@@ -1,4 +1,11 @@
 import { Navigation } from "@/components/Navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "AutoDocs AI - AI-Powered Documentation Platform for Your Code",
+  description:
+    "Automatically generate and maintain comprehensive code documentation for your repositories with AI. Connect your GitHub repos and get instant, up-to-date documentation.",
+};
 
 export default function Home() {
   return (

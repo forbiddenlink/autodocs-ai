@@ -10,6 +10,9 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
+    // Update page title for error pages
+    document.title = "Error - AutoDocs AI";
+
     // Log error to console in development
     if (process.env.NODE_ENV === "development") {
       console.error("Application error:", error);

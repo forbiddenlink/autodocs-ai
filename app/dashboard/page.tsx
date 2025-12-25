@@ -2,8 +2,13 @@
 
 import { Navigation } from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
+  // Update page title dynamically for client component
+  useEffect(() => {
+    document.title = "Dashboard - AutoDocs AI";
+  }, []);
   const { theme } = useTheme();
 
   // Use inline styles as fallback since Tailwind custom colors aren't compiling

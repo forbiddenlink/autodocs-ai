@@ -12,6 +12,9 @@ export default function LoginPage() {
   }>({ expired: false, invalid: false, message: null });
 
   useEffect(() => {
+    // Update page title
+    document.title = "Sign In - AutoDocs AI";
+
     // Check for session expiration message
     const message = getSessionMessage();
     if (message.expired || message.invalid) {
