@@ -46,23 +46,10 @@ export default function DashboardPage() {
         const isDevelopment = window.location.hostname === "localhost";
         let authResponse;
 
-        if (isDevelopment) {
-          authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth-dev/status-dev`,
-            {
-              credentials: "include",
-            }
-          );
-        }
-
-        if (!authResponse || !authResponse.ok) {
-          authResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/auth/status`,
-            {
-              credentials: "include",
-            }
-          );
-        }
+        // Use relative URL to hit Next.js API routes
+        authResponse = await fetch("/api/auth/status", {
+          credentials: "include",
+        });
 
         const authData = await authResponse.json();
 
@@ -74,22 +61,28 @@ export default function DashboardPage() {
         setUser(authData.user);
         setLoading(false);
 
-        // Fetch repositories
-        setReposLoading(true);
-        const reposResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/repos`,
-          {
-            credentials: "include",
-          }
-        );
+        // Fetch repositories (in separate try-catch to not break auth)
+        try {
+          setReposLoading(true);
+          const reposResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/repos`,
+            {
+              credentials: "include",
+            }
+          );
 
-        if (reposResponse.ok) {
-          const reposData = await reposResponse.json();
-          setRepositories(reposData.repositories || []);
-        } else {
+          if (reposResponse.ok) {
+            const reposData = await reposResponse.json();
+            setRepositories(reposData.repositories || []);
+          } else {
+            setReposError("Failed to load repositories");
+          }
+        } catch (reposErr) {
+          console.error("Error fetching repositories:", reposErr);
           setReposError("Failed to load repositories");
+        } finally {
+          setReposLoading(false);
         }
-        setReposLoading(false);
       } catch (err) {
         console.error("Error during initialization:", err);
         setError("Failed to load user data");

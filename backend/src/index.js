@@ -23,6 +23,7 @@ import testAuthRoutes from "./routes/test-auth.js";
 import repoRoutes from "./routes/repos.js";
 
 // Get the directory name of the current module
+// Trigger restart - using PORT=4000
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
