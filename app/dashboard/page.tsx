@@ -29,6 +29,8 @@ interface Repository {
   private: boolean;
 }
 
+type SortOption = "name-asc" | "name-desc" | "sync-asc" | "sync-desc";
+
 export default function DashboardPage() {
   const router = useRouter();
   const { theme } = useTheme();
@@ -41,6 +43,7 @@ export default function DashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("name-asc");
 
   // Function to fetch repositories (can be called for retry)
   const fetchRepositories = async () => {
@@ -58,12 +61,33 @@ export default function DashboardPage() {
       if (reposResponse.ok) {
         const reposData = await reposResponse.json();
         setRepositories(reposData.repositories || []);
+      } else if (reposResponse.status === 401) {
+        // Unauthorized - redirect to login
+        setReposError("Your session has expired. Please log in again.");
+        setTimeout(() => {
+          window.location.href = "/?error=session_expired";
+        }, 2000);
+      } else if (reposResponse.status === 403) {
+        setReposError("You don't have permission to access these repositories.");
+      } else if (reposResponse.status === 404) {
+        setReposError("Repository endpoint not found. Please contact support.");
+      } else if (reposResponse.status >= 500) {
+        setReposError("Server error. Our team has been notified. Please try again later.");
       } else {
-        setReposError("Failed to load repositories");
+        // Generic error for other status codes
+        const errorData = await reposResponse.json().catch(() => ({}));
+        setReposError(errorData.error || "Failed to load repositories. Please try again.");
       }
     } catch (reposErr) {
       console.error("Error fetching repositories:", reposErr);
-      setReposError("Unable to connect to the server. Please check your connection.");
+      // Network error or timeout
+      if (reposErr instanceof TypeError && reposErr.message.includes("fetch")) {
+        setReposError(
+          "Unable to connect to the server. Please check your internet connection and try again."
+        );
+      } else {
+        setReposError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setReposLoading(false);
     }
@@ -127,6 +151,65 @@ export default function DashboardPage() {
     };
     return colors[language] || "#6e7681";
   };
+
+  // Helper function to get status styling
+  const getStatusStyle = (status: string) => {
+    const styles = {
+      completed: {
+        color: "#10b981", // green
+        bg: theme === "dark" ? "#064e3b" : "#d1fae5",
+        icon: "✓",
+        label: "Completed",
+      },
+      analyzing: {
+        color: "#f59e0b", // amber
+        bg: theme === "dark" ? "#78350f" : "#fef3c7",
+        icon: "⟳",
+        label: "Analyzing",
+      },
+      pending: {
+        color: "#6b7280", // gray
+        bg: theme === "dark" ? "#374151" : "#f3f4f6",
+        icon: "○",
+        label: "Pending",
+      },
+      error: {
+        color: "#ef4444", // red
+        bg: theme === "dark" ? "#7f1d1d" : "#fee2e2",
+        icon: "✕",
+        label: "Error",
+      },
+    };
+    return styles[status as keyof typeof styles] || styles.pending;
+  };
+
+  // Helper function to sort repositories
+  const sortRepositories = (repos: Repository[]): Repository[] => {
+    const sorted = [...repos];
+    switch (sortOption) {
+      case "name-asc":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case "name-desc":
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      case "sync-asc":
+        return sorted.sort((a, b) => {
+          if (!a.lastSync) return 1;
+          if (!b.lastSync) return -1;
+          return new Date(a.lastSync).getTime() - new Date(b.lastSync).getTime();
+        });
+      case "sync-desc":
+        return sorted.sort((a, b) => {
+          if (!a.lastSync) return 1;
+          if (!b.lastSync) return -1;
+          return new Date(b.lastSync).getTime() - new Date(a.lastSync).getTime();
+        });
+      default:
+        return sorted;
+    }
+  };
+
+  // Get sorted repositories
+  const sortedRepositories = sortRepositories(repositories);
 
   if (loading) {
     return (
@@ -201,15 +284,44 @@ export default function DashboardPage() {
 
         {/* Repository List Section */}
         <section aria-label="Repository list">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
             <h2 className="text-2xl sm:text-3xl font-semibold">Your Repositories</h2>
             {!reposLoading && !reposError && repositories.length > 0 && (
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
-              >
-                Add Repository
-              </button>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="sort-select"
+                    className="text-sm font-medium"
+                    style={{ color: mutedColor }}
+                  >
+                    Sort by:
+                  </label>
+                  <select
+                    id="sort-select"
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value as SortOption)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+                    style={{
+                      backgroundColor:
+                        theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
+                      color: textColor,
+                      border: `1px solid ${borderColor}`,
+                    }}
+                  >
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="sync-desc">Last Sync (Recent)</option>
+                    <option value="sync-asc">Last Sync (Oldest)</option>
+                  </select>
+                </div>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+                >
+                  Add Repository
+                </button>
+              </div>
             )}
           </div>
 
@@ -276,62 +388,91 @@ export default function DashboardPage() {
           {/* Repository Grid */}
           {!reposLoading && !reposError && repositories.length > 0 && (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {repositories.map((repo) => (
-                <div
-                  key={repo.id}
-                  className="p-4 rounded-lg"
-                  style={{ border: `1px solid ${borderColor}` }}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold truncate" title={repo.name}>
-                      {repo.name}
-                    </h3>
-                    {repo.private && (
+              {sortedRepositories.map((repo) => {
+                const statusStyle = getStatusStyle(repo.status);
+                return (
+                  <div
+                    key={repo.id}
+                    className="p-5 rounded-lg transition-all hover:shadow-lg"
+                    style={{
+                      border: `1px solid ${borderColor}`,
+                      backgroundColor: theme === "dark" ? "hsl(217.2 32.6% 12%)" : "hsl(0 0% 100%)",
+                    }}
+                  >
+                    {/* Header with name and private badge */}
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <h3 className="text-lg font-semibold truncate flex-1" title={repo.name}>
+                        {repo.name}
+                      </h3>
+                      {repo.private && (
+                        <span
+                          className="text-xs px-2 py-1 rounded flex-shrink-0"
+                          style={{
+                            backgroundColor:
+                              theme === "dark"
+                                ? "hsl(217.2 32.6% 17.5%)"
+                                : "hsl(214.3 31.8% 91.4%)",
+                            color: mutedColor,
+                          }}
+                        >
+                          Private
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="mb-3">
                       <span
-                        className="text-xs px-2 py-1 rounded"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
                         style={{
-                          backgroundColor:
-                            theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
-                          color: mutedColor,
+                          backgroundColor: statusStyle.bg,
+                          color: statusStyle.color,
                         }}
                       >
-                        Private
+                        <span>{statusStyle.icon}</span>
+                        <span>{statusStyle.label}</span>
                       </span>
-                    )}
-                  </div>
-
-                  <p
-                    className="text-sm mb-3 line-clamp-2"
-                    style={{ color: mutedColor }}
-                    title={repo.description}
-                  >
-                    {repo.description || "No description available"}
-                  </p>
-
-                  <div className="flex items-center gap-3 text-sm" style={{ color: mutedColor }}>
-                    {repo.language && (
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: getLanguageColor(repo.language) }}
-                        />
-                        {repo.language}
-                      </span>
-                    )}
-                    {repo.stars > 0 && (
-                      <span className="flex items-center gap-1">⭐ {repo.stars}</span>
-                    )}
-                  </div>
-
-                  {repo.lastSync && (
-                    <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${borderColor}` }}>
-                      <p className="text-xs" style={{ color: mutedColor }}>
-                        Last synced: {new Date(repo.lastSync).toLocaleDateString()}
-                      </p>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Description */}
+                    <p
+                      className="text-sm mb-4 line-clamp-2 min-h-[2.5rem]"
+                      style={{ color: mutedColor }}
+                      title={repo.description}
+                    >
+                      {repo.description || "No description available"}
+                    </p>
+
+                    {/* Language and Stars */}
+                    <div
+                      className="flex items-center gap-3 text-sm mb-3"
+                      style={{ color: mutedColor }}
+                    >
+                      {repo.language && (
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: getLanguageColor(repo.language) }}
+                          />
+                          <span>{repo.language}</span>
+                        </span>
+                      )}
+                      {repo.stars > 0 && (
+                        <span className="flex items-center gap-1">⭐ {repo.stars}</span>
+                      )}
+                    </div>
+
+                    {/* Last Sync */}
+                    {repo.lastSync && (
+                      <div className="mt-4 pt-3" style={{ borderTop: `1px solid ${borderColor}` }}>
+                        <p className="text-xs font-medium" style={{ color: mutedColor }}>
+                          Last synced: {new Date(repo.lastSync).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>

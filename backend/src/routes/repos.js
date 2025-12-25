@@ -29,7 +29,7 @@ router.get("/", authenticateToken, async (req, res) => {
           language: "TypeScript",
           stars: 42,
           lastSync: new Date().toISOString(),
-          status: "active",
+          status: "completed",
           private: false,
         },
         {
@@ -41,7 +41,7 @@ router.get("/", authenticateToken, async (req, res) => {
           language: "JavaScript",
           stars: 128,
           lastSync: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          status: "active",
+          status: "analyzing",
           private: false,
         },
         {
@@ -53,8 +53,32 @@ router.get("/", authenticateToken, async (req, res) => {
           language: "Go",
           stars: 89,
           lastSync: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-          status: "active",
+          status: "completed",
           private: true,
+        },
+        {
+          id: 4,
+          name: "mobile-app",
+          description: "Cross-platform mobile application",
+          url: "https://github.com/demo-user/mobile-app",
+          fullName: "demo-user/mobile-app",
+          language: "Swift",
+          stars: 15,
+          lastSync: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+          status: "pending",
+          private: false,
+        },
+        {
+          id: 5,
+          name: "data-pipeline",
+          description: "ETL pipeline for data processing",
+          url: "https://github.com/demo-user/data-pipeline",
+          fullName: "demo-user/data-pipeline",
+          language: "Python",
+          stars: 67,
+          lastSync: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+          status: "error",
+          private: false,
         },
       ];
 
