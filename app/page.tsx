@@ -25,12 +25,21 @@ export const metadata: Metadata = {
     siteName: "AutoDocs AI",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "AutoDocs AI - AI-Powered Documentation Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "AutoDocs AI - AI-Powered Documentation Platform for Your Code",
     description:
       "Automatically generate and maintain comprehensive code documentation for your repositories with AI. Connect your GitHub repos and get instant, up-to-date documentation.",
+    images: ["/og-image.svg"],
   },
 };
 

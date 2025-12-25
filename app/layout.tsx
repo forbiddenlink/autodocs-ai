@@ -31,12 +31,21 @@ export const metadata: Metadata = {
     siteName: "AutoDocs AI",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "AutoDocs AI - AI-Powered Documentation Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "AutoDocs AI - AI-Powered Documentation Platform",
     description: "Automatically generate and maintain code documentation with AI",
     creator: "@autodocs_ai",
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
