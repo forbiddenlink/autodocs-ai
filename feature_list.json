@@ -859,7 +859,7 @@
     ],
     "complexity": "simple",
     "dependencies": [6],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",
@@ -1512,7 +1512,7 @@
     ],
     "complexity": "simple",
     "dependencies": [5],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1544,7 +1544,7 @@
     ],
     "complexity": "simple",
     "dependencies": [5],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -1560,7 +1560,7 @@
     ],
     "complexity": "simple",
     "dependencies": [5],
-    "passes": false
+    "passes": true
   },
   {
     "category": "style",

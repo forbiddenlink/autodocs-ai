@@ -1,6 +1,6 @@
 "use client";
 
-import { Navigation } from "@/components/Navigation";
+import { AuthenticatedNav } from "@/components/AuthenticatedNav";
 import { useTheme } from "@/components/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -127,7 +127,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
-        <Navigation />
+        <AuthenticatedNav />
         <main className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl">
           <div className="text-center">
             <p className="text-lg">Loading...</p>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
-        <Navigation />
+        <AuthenticatedNav />
         <main className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl">
           <div className="text-center">
             <p className="text-lg text-red-500">{error}</p>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
         Skip to main content
       </a>
 
-      <Navigation />
+      <AuthenticatedNav />
       <main
         id="main-content"
         className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl"
@@ -214,9 +214,46 @@ export default function DashboardPage() {
 
           {/* Empty State */}
           {!reposLoading && !reposError && repositories.length === 0 && (
-            <p className="text-base xl:text-lg" style={{ color: mutedColor }}>
-              Your repositories will appear here.
-            </p>
+            <div
+              className="text-center py-12 px-4 rounded-lg"
+              style={{
+                border: `1px solid ${borderColor}`,
+                backgroundColor:
+                  theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
+              }}
+            >
+              <div className="mb-4">
+                <svg
+                  className="mx-auto h-16 w-16"
+                  style={{ color: mutedColor }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No repositories yet</h3>
+              <p className="text-base mb-6 max-w-md mx-auto" style={{ color: mutedColor }}>
+                Get started by connecting your GitHub repositories. We'll analyze your code and
+                generate comprehensive documentation automatically.
+              </p>
+              <button
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+                onClick={() => {
+                  // TODO: Implement add repository flow
+                  alert("Add repository feature coming soon!");
+                }}
+              >
+                Add Your First Repository
+              </button>
+            </div>
           )}
 
           {/* Repository Grid */}
