@@ -42,7 +42,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
     <div
       style={{
         position: "fixed" as const,
-        bottom: "2rem",
+        top: "2rem",
         right: "2rem",
         zIndex: 10000,
         animation: "slideIn 0.3s ease-out",

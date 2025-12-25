@@ -1496,7 +1496,7 @@
     ],
     "complexity": "simple",
     "dependencies": [93],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
