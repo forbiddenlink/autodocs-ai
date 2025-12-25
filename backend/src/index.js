@@ -19,6 +19,7 @@ import {
 } from "./config/sentry.js";
 import { metricsMiddleware, metricsEndpoint, getMetricsJSON } from "./middleware/metrics.js";
 import authRoutes from "./routes/auth.js";
+import testAuthRoutes from "./routes/test-auth.js";
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -169,11 +170,17 @@ app.get("/api/metrics", async (req, res) => {
 // API routes
 app.use("/api/auth", authRoutes);
 
-// Development-only auth routes (for testing without real OAuth/database)
+// Test auth routes (synchronously available, no database required)
 if (process.env.NODE_ENV !== "production") {
-  import("./routes/auth-dev.js").then((module) => {
-    app.use("/api/auth-dev", module.default);
-  });
+  app.use("/api/test-auth", testAuthRoutes);
+  logger.info("✅ Test auth routes registered at /api/test-auth");
+}
+
+// Development-only auth routes (for testing without real OAuth/database) - loaded synchronously
+if (process.env.NODE_ENV !== "production") {
+  const authDevModule = await import("./routes/auth-dev.js");
+  app.use("/api/auth-dev", authDevModule.default);
+  logger.info("✅ Development auth routes registered at /api/auth-dev");
 }
 
 // app.use('/api/repos', repoRoutes);  // To be added
