@@ -8,6 +8,10 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "migrate": "node src/scripts/migrate.js",
+    "migrate:rollback": "node src/scripts/rollback.js",
+    "backup": "bash scripts/backup.sh",
+    "restore": "bash scripts/restore.sh",
+    "backup:validate": "bash scripts/validate-backup.sh",
     "test": "jest"
   },
   "keywords": [
