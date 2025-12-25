@@ -258,6 +258,30 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
         <div className="flex-1 overflow-y-auto p-6">
           {loading && (
             <div className="text-center py-12">
+              {/* Loading Spinner */}
+              <div className="mb-4 flex justify-center">
+                <svg
+                  className="animate-spin h-12 w-12"
+                  style={{ color: mutedColor }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              </div>
               <p style={{ color: mutedColor }}>Loading your repositories...</p>
             </div>
           )}
@@ -267,8 +291,27 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
               className="p-4 rounded-lg mb-4"
               style={{ backgroundColor: "#fee", border: "1px solid #fcc", color: "#c33" }}
             >
-              <p className="font-medium">Error</p>
-              <p className="text-sm mt-1">{error}</p>
+              <div className="flex items-start gap-3">
+                {/* Error Icon */}
+                <svg
+                  className="h-5 w-5 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="font-medium">Error</p>
+                  <p className="text-sm mt-1">{error}</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -293,8 +336,29 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
               {/* Repository List */}
               <div className="space-y-2">
                 {filteredRepos.length === 0 && (
-                  <div className="text-center py-8" style={{ color: mutedColor }}>
-                    <p>No repositories found</p>
+                  <div className="text-center py-12">
+                    {/* Search Icon */}
+                    <div className="mb-4 flex justify-center">
+                      <svg
+                        className="h-16 w-16"
+                        style={{ color: mutedColor, opacity: 0.5 }}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
+                    <p style={{ color: mutedColor }}>No repositories found</p>
+                    <p className="text-sm mt-2" style={{ color: mutedColor, opacity: 0.8 }}>
+                      Try adjusting your search terms
+                    </p>
                   </div>
                 )}
 
