@@ -1,5 +1,6 @@
 "use client";
 
+// Form validation for search field - Test #106
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "@/components/ThemeProvider";
@@ -29,6 +30,8 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null);
   const [adding, setAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchTouched, setSearchTouched] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const bgColor = theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(0 0% 100%)";
@@ -176,10 +179,45 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
     }
   };
 
+  const validateSearchQuery = (value: string): string | null => {
+    // Validation rules for search field
+    if (value.length > 0 && value.length < 2) {
+      return "Search must be at least 2 characters";
+    }
+    if (value.length > 100) {
+      return "Search cannot exceed 100 characters";
+    }
+    // Check for invalid characters that don't make sense in repository search
+    const invalidChars = /[<>{}[\]\\]/;
+    if (invalidChars.test(value)) {
+      return "Search contains invalid characters (<>{}[]\)";
+    }
+    return null;
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    // Immediate validation feedback
+    if (searchTouched) {
+      const validationError = validateSearchQuery(value);
+      setSearchError(validationError);
+    }
+  };
+
+  const handleSearchBlur = () => {
+    setSearchTouched(true);
+    const validationError = validateSearchQuery(searchQuery);
+    setSearchError(validationError);
+  };
+
   const handleClose = () => {
     if (!adding) {
       setSelectedRepo(null);
       setSearchQuery("");
+      setSearchError(null);
+      setSearchTouched(false);
       setError(null);
       onClose();
     }
@@ -323,14 +361,61 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
                   type="text"
                   placeholder="Search repositories..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg"
+                  onChange={handleSearchChange}
+                  onBlur={handleSearchBlur}
+                  className="w-full px-4 py-2 rounded-lg transition-colors"
                   style={{
                     backgroundColor: theme === "dark" ? "hsl(217.2 32.6% 17.5%)" : "hsl(0 0% 100%)",
-                    border: `1px solid ${borderColor}`,
+                    border: `2px solid ${searchError ? "#ef4444" : searchTouched && !searchError ? "#10b981" : borderColor}`,
                     color: textColor,
+                    outline: "none",
                   }}
+                  aria-invalid={!!searchError}
+                  aria-describedby={searchError ? "search-error" : undefined}
                 />
+                {searchError && (
+                  <div
+                    id="search-error"
+                    className="mt-2 text-sm flex items-start gap-2"
+                    style={{ color: "#ef4444" }}
+                    role="alert"
+                  >
+                    <svg
+                      className="h-4 w-4 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>{searchError}</span>
+                  </div>
+                )}
+                {!searchError && searchTouched && searchQuery.length > 0 && (
+                  <div className="mt-2 text-sm flex items-start gap-2" style={{ color: "#10b981" }}>
+                    <svg
+                      className="h-4 w-4 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Valid search term</span>
+                  </div>
+                )}
               </div>
 
               {/* Repository List */}
