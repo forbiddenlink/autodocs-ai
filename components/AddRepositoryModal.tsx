@@ -1,6 +1,8 @@
 "use client";
 
 // Form validation for search field - Test #106
+// Required field indicators - Test #110
+// Form label associations - Test #111
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "@/components/ThemeProvider";
@@ -33,6 +35,7 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchTouched, setSearchTouched] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const bgColor = theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(0 0% 100%)";
   const textColor = theme === "dark" ? "hsl(210 40% 98%)" : "hsl(222.2 84% 4.9%)";
@@ -135,7 +138,12 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
   };
 
   const handleAddRepository = async () => {
-    if (!selectedRepo) return;
+    setSubmitAttempted(true);
+
+    if (!selectedRepo) {
+      setError("Please select a repository to add");
+      return;
+    }
 
     try {
       setAdding(true);
@@ -219,6 +227,7 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
       setSearchError(null);
       setSearchTouched(false);
       setError(null);
+      setSubmitAttempted(false);
       onClose();
     }
   };
@@ -290,6 +299,9 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
           <p className="text-sm mt-1" style={{ color: mutedColor }}>
             Select a repository from your GitHub account to start generating documentation
           </p>
+          <p className="text-xs mt-2" style={{ color: mutedColor }}>
+            <span style={{ color: "#ef4444" }}>*</span> Required field
+          </p>
         </div>
 
         {/* Content */}
@@ -355,9 +367,24 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
 
           {!loading && !error && (
             <>
+              {/* Repository Selection Label */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2" style={{ color: textColor }}>
+                  Select Repository <span style={{ color: "#ef4444" }}>*</span>
+                </label>
+              </div>
+
               {/* Search */}
               <div className="mb-4">
+                <label
+                  htmlFor="repository-search"
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: textColor }}
+                >
+                  Search Repositories (Optional)
+                </label>
                 <input
+                  id="repository-search"
                   type="text"
                   placeholder="Search repositories..."
                   value={searchQuery}
@@ -418,6 +445,35 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
                 )}
               </div>
 
+              {/* Selection Required Error */}
+              {submitAttempted && !selectedRepo && (
+                <div
+                  className="mb-4 p-3 rounded-lg flex items-start gap-2"
+                  style={{
+                    backgroundColor: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    color: "#dc2626",
+                  }}
+                  role="alert"
+                >
+                  <svg
+                    className="h-4 w-4 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span className="text-sm">Please select a repository to continue</span>
+                </div>
+              )}
+
               {/* Repository List */}
               <div className="space-y-2">
                 {filteredRepos.length === 0 && (
@@ -450,7 +506,11 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
                 {filteredRepos.map((repo) => (
                   <button
                     key={repo.id}
-                    onClick={() => setSelectedRepo(repo)}
+                    onClick={() => {
+                      setSelectedRepo(repo);
+                      setSubmitAttempted(false);
+                      setError(null);
+                    }}
                     className="w-full text-left p-4 rounded-lg transition"
                     style={{
                       border: `2px solid ${selectedRepo?.id === repo.id ? "#3b82f6" : borderColor}`,
