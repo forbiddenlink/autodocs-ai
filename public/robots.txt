@@ -1,0 +1,25 @@
+# robots.txt for AutoDocs AI
+
+# Allow all crawlers by default
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /about
+Allow: /pricing
+Allow: /docs
+
+# Disallow private/authenticated pages
+Disallow: /dashboard
+Disallow: /repos/
+Disallow: /settings
+Disallow: /api/
+
+# Disallow admin pages
+Disallow: /admin
+
+# Sitemap location
+Sitemap: https://autodocs-ai.com/sitemap.xml
+
+# Crawl delay (optional, adjust as needed)
+Crawl-delay: 1

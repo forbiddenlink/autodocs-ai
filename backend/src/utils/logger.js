@@ -18,21 +18,48 @@ const logColors = {
 
 winston.addColors(logColors);
 
-const format = winston.format.combine(
+// Structured JSON format for production, human-readable for development
+const isProduction = process.env.NODE_ENV === 'production';
+
+const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}`
+    (info) => {
+      const { timestamp, level, message, ...meta } = info;
+      const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+      return `${timestamp} ${level}: ${message} ${metaStr}`;
+    }
   )
 );
 
+const jsonFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+  winston.format.errors({ stack: true }),
+  winston.format.json()
+);
+
+const format = isProduction ? jsonFormat : consoleFormat;
+
+// Console uses appropriate format based on environment
+const consoleTransport = new winston.transports.Console({
+  format: isProduction
+    ? jsonFormat
+    : consoleFormat
+});
+
+// File transports always use JSON format for parsing/searching
 const transports = [
-  new winston.transports.Console(),
+  consoleTransport,
   new winston.transports.File({
     filename: 'logs/error.log',
     level: 'error',
+    format: jsonFormat
   }),
-  new winston.transports.File({ filename: 'logs/all.log' }),
+  new winston.transports.File({
+    filename: 'logs/all.log',
+    format: jsonFormat
+  }),
 ];
 
 export const logger = winston.createLogger({
