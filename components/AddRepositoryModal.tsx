@@ -18,7 +18,7 @@ interface GitHubRepo {
 interface AddRepositoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (repoName: string) => void;
 }
 
 export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepositoryModalProps) {
@@ -160,10 +160,10 @@ export function AddRepositoryModal({ isOpen, onClose, onSuccess }: AddRepository
 
       if (response.ok) {
         // Success! Close modal and trigger refresh
-        onSuccess();
-        onClose();
         setSelectedRepo(null);
         setSearchQuery("");
+        onSuccess(selectedRepo.name); // Pass repository name for toast
+        onClose();
       } else {
         const data = await response.json();
         setError(data.error || "Failed to add repository");

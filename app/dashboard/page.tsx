@@ -3,6 +3,7 @@
 import { AuthenticatedNav } from "@/components/AuthenticatedNav";
 import { ErrorState } from "@/components/ErrorState";
 import { AddRepositoryModal } from "@/components/AddRepositoryModal";
+import { Toast } from "@/components/Toast";
 import { useTheme } from "@/components/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -38,6 +39,8 @@ export default function DashboardPage() {
   const [reposLoading, setReposLoading] = useState(false);
   const [reposError, setReposError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Function to fetch repositories (can be called for retry)
   const fetchRepositories = async () => {
@@ -338,11 +341,24 @@ export default function DashboardPage() {
       <AddRepositoryModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSuccess={() => {
+        onSuccess={(repoName) => {
+          // Show success toast
+          setToastMessage(`Successfully added "${repoName}" to your repositories`);
+          setShowToast(true);
           // Refresh the repository list after adding
           fetchRepositories();
         }}
       />
+
+      {/* Success Toast */}
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type="success"
+          duration={4000}
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 }
