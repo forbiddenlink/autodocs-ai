@@ -2,6 +2,7 @@
 
 import { Navigation } from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
+import { MermaidDiagram } from "@/components/MermaidDiagram";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -240,6 +241,15 @@ export default function RepositoryPage() {
                           <ol className="list-decimal list-inside mb-4 space-y-2" {...props} />
                         ),
                         code: ({ node, inline, className, children, ...props }: any) => {
+                          // Check if this is a Mermaid diagram
+                          const match = /language-(\w+)/.exec(className || "");
+                          const language = match ? match[1] : "";
+
+                          if (!inline && language === "mermaid") {
+                            const code = String(children).replace(/\n$/, "");
+                            return <MermaidDiagram chart={code} theme={theme} />;
+                          }
+
                           if (inline) {
                             return (
                               <code
