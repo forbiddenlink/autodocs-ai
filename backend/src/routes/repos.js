@@ -523,6 +523,175 @@ graph LR
 });
 
 /**
+ * POST /api/repos/:id/chat
+ * Send a chat message and get AI response
+ *
+ * Body: { message: string }
+ * Returns: { response: string, timestamp: string }
+ */
+router.post("/:id/chat", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const { message } = req.body;
+
+    // Validation
+    if (isNaN(repoId)) {
+      return res.status(400).json({
+        error: "Invalid repository ID",
+      });
+    }
+
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      return res.status(400).json({
+        error: "Message is required",
+      });
+    }
+
+    if (message.length > 2000) {
+      return res.status(400).json({
+        error: "Message is too long (max 2000 characters)",
+      });
+    }
+
+    logger.info("Processing chat message", {
+      userId,
+      repoId,
+      messageLength: message.length,
+    });
+
+    // For development/testing, return mock AI response
+    if (process.env.NODE_ENV !== "production") {
+      // Simulate processing delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Generate contextual mock responses based on keywords
+      let mockResponse = "";
+
+      const lowerMessage = message.toLowerCase();
+
+      if (lowerMessage.includes("explain") || lowerMessage.includes("what is")) {
+        mockResponse = `Great question! Based on the codebase analysis:\n\nThe component or function you're asking about is designed to handle specific business logic within the application. It follows best practices by:\n\n1. **Separating concerns** - keeping logic modular and maintainable\n2. **Error handling** - properly catching and logging errors\n3. **Type safety** - using TypeScript for better developer experience\n\n*Note: This is a mock response. Once the AI backend is integrated with Claude API and RAG, I'll provide detailed, code-specific answers.*`;
+      } else if (lowerMessage.includes("how") || lowerMessage.includes("can i")) {
+        mockResponse = `To accomplish what you're asking about, here's the recommended approach:\n\n\`\`\`typescript\n// Example implementation\nfunction handleTask() {\n  try {\n    // Your logic here\n    return result;\n  } catch (error) {\n    logger.error('Task failed', error);\n    throw error;\n  }\n}\n\`\`\`\n\n**Key considerations:**\n- Ensure proper error handling\n- Add logging for debugging\n- Include unit tests\n\n*Full AI-powered responses coming soon!*`;
+      } else if (lowerMessage.includes("architecture") || lowerMessage.includes("structure")) {
+        mockResponse = `The application follows a modern microservices architecture:\n\n**Frontend (Next.js)**\n- React components with TypeScript\n- App Router for navigation\n- Tailwind CSS for styling\n\n**Backend (Express)**\n- RESTful API endpoints\n- PostgreSQL for data persistence\n- JWT authentication\n\n**Integration**\n- GitHub OAuth for user authentication\n- Claude AI for documentation generation\n- Pinecone for vector embeddings (RAG)\n\n*Once fully integrated, I can provide specific code paths and interactions.*`;
+      } else if (lowerMessage.includes("error") || lowerMessage.includes("bug")) {
+        mockResponse = `Let me help you troubleshoot:\n\n**Common debugging steps:**\n1. Check the browser console for error messages\n2. Verify environment variables are set correctly\n3. Ensure the backend server is running\n4. Check network requests in DevTools\n\n**Error handling pattern:**\n\`\`\`typescript\ntry {\n  await operation();\n} catch (error) {\n  logger.error('Operation failed', { error });\n  // Handle gracefully\n}\n\`\`\`\n\n*With full AI integration, I'll be able to analyze your specific error context.*`;
+      } else if (lowerMessage.includes("test")) {
+        mockResponse = `Here's how to approach testing:\n\n**Unit Tests**\n- Test individual functions in isolation\n- Mock external dependencies\n- Use Jest or similar framework\n\n**Integration Tests**\n- Test API endpoints\n- Verify database operations\n- Check authentication flows\n\n**E2E Tests**\n- Use Playwright or Cypress\n- Test complete user workflows\n- Verify UI interactions\n\n*The AI will soon provide specific test cases for your code!*`;
+      } else {
+        mockResponse = `Thank you for your question! I'm here to help you understand the codebase.\n\nOnce the full AI integration is complete, I'll be able to:\n\n✓ **Search** through your entire codebase using vector embeddings\n✓ **Analyze** code context with Claude AI\n✓ **Provide** specific answers with code examples\n✓ **Reference** actual files and functions\n✓ **Suggest** improvements and best practices\n\nFor now, I can help with general questions about the architecture, common patterns, and development workflows.\n\n*Full RAG-powered responses coming soon!*`;
+      }
+
+      logger.info("Returning mock chat response", {
+        userId,
+        repoId,
+        responseLength: mockResponse.length,
+      });
+
+      return res.json({
+        response: mockResponse,
+        timestamp: new Date().toISOString(),
+        mock: true,
+      });
+    }
+
+    // Production: Integrate with Claude API and RAG
+    // TODO: Implement when AI backend is ready
+    // 1. Perform vector search on embeddings to find relevant code chunks
+    // 2. Send context + message to Claude API
+    // 3. Store message and response in database
+    // 4. Return AI-generated response
+
+    res.status(501).json({
+      error: "AI chat not yet implemented in production",
+    });
+  } catch (error) {
+    logger.error("Error processing chat message", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id,
+      repoId: req.params.id,
+    });
+
+    res.status(500).json({
+      error: "Failed to process chat message",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/repos/:id/analyze
+ * Trigger documentation regeneration for a repository
+ */
+router.post("/:id/analyze", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const { force = false, types = [] } = req.body;
+
+    if (isNaN(repoId)) {
+      return res.status(400).json({
+        error: "Invalid repository ID",
+      });
+    }
+
+    logger.info("Triggering documentation analysis", {
+      userId,
+      repoId,
+      force,
+      types,
+    });
+
+    // Validate types if provided
+    const validTypes = ["readme", "api", "function", "class", "architecture"];
+    if (types.length > 0) {
+      const invalidTypes = types.filter((type) => !validTypes.includes(type));
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({
+          error: "Invalid documentation types",
+          invalidTypes,
+          validTypes,
+        });
+      }
+    }
+
+    // For development/testing, return success
+    if (process.env.NODE_ENV !== "production") {
+      return res.json({
+        message: "Documentation regeneration started",
+        repoId,
+        jobId: `job_${Date.now()}`,
+        estimatedTime: "2-5 minutes",
+        types: types.length > 0 ? types : validTypes,
+      });
+    }
+
+    // Production: Create analysis job in database
+    // TODO: Implement job creation when database is set up
+    // TODO: Trigger actual analysis with Claude AI
+
+    res.status(501).json({
+      error: "Not implemented in production yet",
+    });
+  } catch (error) {
+    logger.error("Error triggering analysis", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id,
+      repoId: req.params.id,
+    });
+
+    res.status(500).json({
+      error: "Failed to start analysis",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
  * DELETE /api/repos/:id
  * Remove a repository from tracking
  */

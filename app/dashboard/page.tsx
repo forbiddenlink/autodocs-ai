@@ -2,6 +2,7 @@
 
 import { AuthenticatedNav } from "@/components/AuthenticatedNav";
 import { ErrorState } from "@/components/ErrorState";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AddRepositoryModal } from "@/components/AddRepositoryModal";
 import { Toast } from "@/components/Toast";
 import { useTheme } from "@/components/ThemeProvider";
@@ -247,9 +248,7 @@ export default function DashboardPage() {
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
         <AuthenticatedNav />
         <main className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
+          <LoadingSpinner fullScreen text="Loading dashboard..." />
         </main>
       </div>
     );

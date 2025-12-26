@@ -1,6 +1,7 @@
 "use client";
 
 import { Navigation } from "@/components/Navigation";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useTheme } from "@/components/ThemeProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,42 @@ export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (!confirm("Are you sure you want to logout?")) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+
+    try {
+      // Call logout endpoint
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        // Clear any local storage or session storage
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // Redirect to landing page
+        window.location.href = "/?message=logged_out";
+      } else {
+        setError("Failed to logout. Please try again.");
+        setIsLoggingOut(false);
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+      setError("Failed to logout. Please try again.");
+      setIsLoggingOut(false);
+    }
+  };
 
   useEffect(() => {
     // Update page title dynamically for client component
@@ -78,9 +115,7 @@ export default function SettingsPage() {
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
         <Navigation />
         <main className="container mx-auto p-6 sm:p-8 xl:p-12 pt-24 xl:pt-28 max-w-7xl">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
+          <LoadingSpinner fullScreen text="Loading settings..." />
         </main>
       </div>
     );
@@ -226,16 +261,41 @@ export default function SettingsPage() {
           style={{ border: `1px solid ${borderColor}` }}
         >
           <h2 className="text-2xl font-semibold mb-4">Account</h2>
-          <p className="text-base mb-4" style={{ color: mutedColor }}>
+          <p className="text-base mb-6" style={{ color: mutedColor }}>
             Manage your AutoDocs AI account settings and preferences.
           </p>
 
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition"
-          >
-            Back to Dashboard
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="w-full sm:w-auto px-6 py-3 text-sm rounded-lg font-medium transition-all"
+              style={{
+                backgroundColor: "hsl(217.2 91.2% 59.8%)",
+                color: "white",
+              }}
+            >
+              Back to Dashboard
+            </button>
+
+            <div className="pt-6" style={{ borderTop: `1px solid ${borderColor}` }}>
+              <h3 className="text-lg font-semibold mb-2">Logout</h3>
+              <p className="text-sm mb-4" style={{ color: mutedColor }}>
+                Sign out of your AutoDocs AI account. You'll need to authenticate again to access
+                your repositories.
+              </p>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="px-6 py-3 text-sm rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: theme === "dark" ? "hsl(0 62.8% 30.6%)" : "hsl(0 84.2% 60.2%)",
+                  color: "white",
+                }}
+              >
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          </div>
         </section>
       </main>
     </div>

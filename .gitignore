@@ -43,3 +43,7 @@ logs/
 
 # Agent files (keep .claude_settings.json private but track critical project files)
 .claude_settings.json
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md
