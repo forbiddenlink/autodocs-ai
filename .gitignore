@@ -47,3 +47,6 @@ logs/
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# VS Code Local History
+.history/
