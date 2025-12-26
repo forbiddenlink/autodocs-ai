@@ -455,6 +455,88 @@ export default function RepositoryPage() {
           border-radius: 0.25rem;
           font-weight: 600;
         }
+
+        /* Print-friendly styles */
+        @media print {
+          /* Hide interactive elements */
+          .no-print,
+          nav,
+          button:not(.copy-code-button),
+          .search-panel,
+          .sidebar,
+          .breadcrumbs {
+            display: none !important;
+          }
+
+          /* Full width layout */
+          body {
+            background: white !important;
+            color: black !important;
+          }
+
+          main {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 1rem !important;
+          }
+
+          .grid {
+            display: block !important;
+          }
+
+          /* Page break rules */
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+          }
+
+          pre,
+          code,
+          .prose pre {
+            page-break-inside: avoid;
+            border: 1px solid #ddd !important;
+            background: #f9f9f9 !important;
+          }
+
+          /* Link URLs */
+          a[href^="http"]:after {
+            content: " (" attr(href) ")";
+            font-size: 9pt;
+            color: #666;
+          }
+
+          /* Clean styling */
+          * {
+            box-shadow: none !important;
+            text-shadow: none !important;
+          }
+
+          /* Optimize fonts */
+          body {
+            font-size: 12pt;
+            line-height: 1.5;
+          }
+
+          h1 {
+            font-size: 18pt;
+          }
+          h2 {
+            font-size: 16pt;
+          }
+          h3 {
+            font-size: 14pt;
+          }
+
+          /* Ensure content is visible */
+          .prose {
+            max-width: 100% !important;
+          }
+        }
       `}</style>
       <Navigation />
       <main
@@ -481,8 +563,28 @@ export default function RepositoryPage() {
           </div>
           <div className="flex gap-2 flex-wrap justify-end">
             <button
+              onClick={() => window.print()}
+              className="px-4 py-2 rounded font-medium transition-all flex items-center gap-2 no-print"
+              style={{
+                backgroundColor: borderColor,
+                border: `1px solid ${borderColor}`,
+              }}
+              title="Export as PDF"
+              aria-label="Export documentation as PDF"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+              <span className="hidden sm:inline">Export PDF</span>
+            </button>
+            <button
               onClick={() => setShowSearch(!showSearch)}
-              className="px-4 py-2 rounded font-medium transition-all flex items-center gap-2"
+              className="px-4 py-2 rounded font-medium transition-all flex items-center gap-2 no-print"
               style={{
                 backgroundColor: borderColor,
                 border: `1px solid ${borderColor}`,
@@ -501,7 +603,7 @@ export default function RepositoryPage() {
             </button>
             <button
               onClick={() => router.push(`/repos/${params.id}/chat`)}
-              className="px-4 py-2 rounded font-medium transition-all flex items-center gap-2"
+              className="px-4 py-2 rounded font-medium transition-all flex items-center gap-2 no-print"
               style={{
                 backgroundColor: "hsl(217.2 91.2% 59.8%)",
                 color: "white",
@@ -519,7 +621,7 @@ export default function RepositoryPage() {
             </button>
             <button
               onClick={() => router.push(`/repos/${params.id}/settings`)}
-              className="px-4 py-2 rounded font-medium transition-all"
+              className="px-4 py-2 rounded font-medium transition-all no-print"
               style={{
                 backgroundColor: borderColor,
                 border: `1px solid ${borderColor}`,
