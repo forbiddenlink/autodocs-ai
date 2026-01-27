@@ -45,6 +45,7 @@ export default function ChatPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -251,6 +252,18 @@ export default function ChatPage() {
     console.log("🗑️  Chat history cleared");
   };
 
+  // Handle copy code to clipboard
+  const handleCopyCode = async (code: string, codeId: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(codeId);
+      // Reset after 2 seconds
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy code:", err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: bgColor, color: textColor }}>
@@ -382,20 +395,80 @@ export default function ChatPage() {
                                 </code>
                               );
                             }
+
+                            // Block code with copy button
+                            const codeString = String(children).replace(/\n$/, "");
+                            const codeId = `code-${Math.random().toString(36).substring(7)}`;
+
                             return (
-                              <code
-                                className={`block p-3 rounded overflow-x-auto text-sm ${
-                                  className || ""
-                                }`}
-                                style={{
-                                  backgroundColor:
-                                    theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(220 13% 95%)",
-                                  fontFamily: "monospace",
-                                }}
-                                {...props}
-                              >
-                                {children}
-                              </code>
+                              <div className="relative group my-2">
+                                {/* Copy Button */}
+                                <button
+                                  onClick={() => handleCopyCode(codeString, codeId)}
+                                  className="absolute top-2 right-2 px-2 py-1 rounded text-xs font-medium transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+                                  style={{
+                                    backgroundColor:
+                                      theme === "dark"
+                                        ? "hsl(217.2 32.6% 17.5%)"
+                                        : "hsl(0 0% 100%)",
+                                    border: `1px solid ${borderColor}`,
+                                    color: textColor,
+                                  }}
+                                  title="Copy code"
+                                >
+                                  {copiedCode === codeId ? (
+                                    <span className="flex items-center gap-1">
+                                      <svg
+                                        className="w-3 h-3"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        style={{ color: "hsl(142, 71%, 45%)" }}
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                      <span style={{ color: "hsl(142, 71%, 45%)" }}>Copied!</span>
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1">
+                                      <svg
+                                        className="w-3 h-3"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                        />
+                                      </svg>
+                                      Copy
+                                    </span>
+                                  )}
+                                </button>
+
+                                {/* Code Block */}
+                                <code
+                                  className={`block p-3 rounded overflow-x-auto text-sm ${
+                                    className || ""
+                                  }`}
+                                  style={{
+                                    backgroundColor:
+                                      theme === "dark" ? "hsl(222.2 84% 4.9%)" : "hsl(220 13% 95%)",
+                                    fontFamily: "monospace",
+                                  }}
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              </div>
                             );
                           },
                           ul: ({ node, ...props }) => (

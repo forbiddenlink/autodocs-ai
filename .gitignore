@@ -25,7 +25,8 @@ yarn-error.log*
 
 # Local env files
 .env*.local
-.env
+# dev/test pages (not for production)
+/app/dev/.env
 
 # Vercel
 .vercel
