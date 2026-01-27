@@ -1,6 +1,7 @@
 import express from "express";
 import { logger } from "../utils/logger.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { query } from "../config/database.js";
 
 const router = express.Router();
 
@@ -17,95 +18,32 @@ router.get("/", authenticateToken, async (req, res) => {
 
     logger.info("Fetching repositories for user", { userId });
 
-    // For development/testing, return mock repository data
-    if (process.env.NODE_ENV !== "production") {
-      const mockRepos = [
-        {
-          id: 1,
-          name: "autodocs-ai",
-          description: "AI-powered documentation platform",
-          url: "https://github.com/demo-user/autodocs-ai",
-          fullName: "demo-user/autodocs-ai",
-          language: "TypeScript",
-          stars: 42,
-          lastSync: new Date().toISOString(),
-          status: "completed",
-          private: false,
-          fileCount: 247,
-          lineCount: 18543,
-        },
-        {
-          id: 2,
-          name: "react-components",
-          description: "Reusable React component library",
-          url: "https://github.com/demo-user/react-components",
-          fullName: "demo-user/react-components",
-          language: "JavaScript",
-          stars: 128,
-          lastSync: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-          status: "analyzing",
-          private: false,
-          fileCount: 156,
-          lineCount: 12389,
-        },
-        {
-          id: 3,
-          name: "api-gateway",
-          description: "Microservices API gateway with authentication",
-          url: "https://github.com/demo-user/api-gateway",
-          fullName: "demo-user/api-gateway",
-          language: "Go",
-          stars: 89,
-          lastSync: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-          status: "completed",
-          private: true,
-          fileCount: 89,
-          lineCount: 7621,
-        },
-        {
-          id: 4,
-          name: "mobile-app",
-          description: "Cross-platform mobile application",
-          url: "https://github.com/demo-user/mobile-app",
-          fullName: "demo-user/mobile-app",
-          language: "Swift",
-          stars: 15,
-          lastSync: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-          status: "pending",
-          private: false,
-          fileCount: 0,
-          lineCount: 0,
-        },
-        {
-          id: 5,
-          name: "data-pipeline",
-          description: "ETL pipeline for data processing",
-          url: "https://github.com/demo-user/data-pipeline",
-          fullName: "demo-user/data-pipeline",
-          language: "Python",
-          stars: 67,
-          lastSync: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
-          status: "error",
-          private: false,
-          fileCount: 0,
-          lineCount: 0,
-        },
-      ];
+    // Query database for user's repositories
+    const result = await query(
+      `SELECT 
+        id,
+        user_id as "userId",
+        github_repo_id as "githubRepoId",
+        name,
+        full_name as "fullName",
+        url,
+        default_branch as "defaultBranch",
+        status,
+        last_sync as "lastSync",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM repositories 
+      WHERE user_id = $1
+      ORDER BY created_at DESC`,
+      [userId]
+    );
 
-      logger.info("Returning mock repository data", {
-        userId,
-        repoCount: mockRepos.length,
-      });
+    const repositories = result.rows;
 
-      return res.json({
-        repositories: mockRepos,
-        count: mockRepos.length,
-      });
-    }
-
-    // Production: Query database for user's repositories
-    // TODO: Implement database query when database is set up
-    const repositories = [];
+    logger.info("Fetched user repositories from database", {
+      userId,
+      repoCount: repositories.length,
+    });
 
     res.json({
       repositories,
