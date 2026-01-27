@@ -158,41 +158,54 @@ router.post("/", authenticateToken, async (req, res) => {
       githubRepoId,
     });
 
-    // For development/testing, return mock success response
-    if (process.env.NODE_ENV !== "production") {
-      const newRepo = {
-        id: Math.floor(Math.random() * 10000),
-        userId,
-        githubRepoId,
-        name,
-        url,
-        fullName,
-        description: description || null,
-        language: language || null,
-        stars: 0,
-        lastSync: null,
-        status: "pending",
-        private: isPrivate || false,
-        createdAt: new Date().toISOString(),
-      };
+    // Insert repository into database
+    try {
+      const { query } = await import("../config/database.js");
 
-      logger.info("Repository added (mock)", {
+      const result = await query(
+        `INSERT INTO repositories 
+         (user_id, github_repo_id, name, full_name, url, status, last_sync) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7) 
+         RETURNING id, user_id, github_repo_id, name, full_name, url, status, 
+                   last_sync, created_at, updated_at`,
+        [userId, githubRepoId, name, fullName, url, "pending", null]
+      );
+
+      const newRepo = result.rows[0];
+
+      logger.info("Repository added to database", {
         repoId: newRepo.id,
         userId,
+        githubRepoId,
       });
 
       return res.status(201).json({
-        repository: newRepo,
+        repository: {
+          id: newRepo.id,
+          userId: newRepo.user_id,
+          githubRepoId: newRepo.github_repo_id,
+          name: newRepo.name,
+          fullName: newRepo.full_name,
+          url: newRepo.url,
+          status: newRepo.status,
+          lastSync: newRepo.last_sync,
+          createdAt: newRepo.created_at,
+          updatedAt: newRepo.updated_at,
+        },
         message: "Repository added successfully",
       });
+    } catch (dbError) {
+      // Check for unique constraint violation
+      if (dbError.code === "23505") {
+        logger.warn("Repository already exists", { githubRepoId, userId });
+        return res.status(409).json({
+          error: "Repository already added",
+          message: "This repository has already been added to your account",
+        });
+      }
+
+      throw dbError; // Re-throw other errors to be caught by outer catch
     }
-
-    // Production: Insert into database
-    // TODO: Implement database insert when database is set up
-
-    res.status(501).json({
-      error: "Not implemented in production yet",
-    });
   } catch (error) {
     logger.error("Error adding repository", {
       error: error.message,
