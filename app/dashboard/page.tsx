@@ -451,11 +451,21 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={repo.id}
-                    className="p-5 rounded-lg transition-all hover:shadow-lg"
+                    className="p-5 rounded-lg transition-all hover:shadow-lg cursor-pointer"
                     style={{
                       border: `1px solid ${borderColor}`,
                       backgroundColor: theme === "dark" ? "hsl(217.2 32.6% 12%)" : "hsl(0 0% 100%)",
                     }}
+                    onClick={() => router.push(`/repos/${repo.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/repos/${repo.id}`);
+                      }
+                    }}
+                    aria-label={`View documentation for ${repo.name}`}
                   >
                     {/* Header with name and private badge */}
                     <div className="flex items-start justify-between mb-2 gap-2">

@@ -24,6 +24,7 @@ import testAuthRoutes from "./routes/test-auth.js";
 import repoRoutes from "./routes/repos.js";
 import testDbRoutes from "./routes/test-db.js";
 import webhookRoutes from "./routes/webhooks.js";
+import githubRoutes from "./routes/github.js";
 import { swaggerSpec, swaggerUiServe, swaggerUiSetup } from "./config/swagger.js";
 import { checkRedisHealth, closeRedisConnection } from "./config/redis.js";
 import { createDocumentationWorker, closeWorker } from "./workers/documentationWorker.js";
@@ -277,6 +278,7 @@ app.get("/api/metrics", async (req, res) => {
 // API routes with rate limiting
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/repos", apiLimiter, repoRoutes);
+app.use("/api/github", apiLimiter, githubRoutes);
 app.use("/api/webhooks", webhookRoutes);
 
 // API Documentation (Swagger/OpenAPI)
