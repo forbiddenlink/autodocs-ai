@@ -4,6 +4,13 @@ import { authenticateToken } from "../middleware/auth.js";
 import { query } from "../config/database.js";
 import { generateChatResponse } from "../services/claudeService.js";
 import { searchCodeChunks } from "../services/pineconeService.js";
+import {
+  addDocumentationGenerationJob,
+  addFullAnalysisJob,
+  getJobStatus,
+  QUEUE_NAMES,
+} from "../services/jobQueueService.js";
+import { isDocumentationServiceAvailable } from "../services/documentationService.js";
 
 const router = express.Router();
 
@@ -295,13 +302,16 @@ router.get("/:id", authenticateToken, async (req, res) => {
  * Get all documentation for a specific repository
  *
  * Query parameters:
- *   - type: Filter by document type (readme, api, function, class, architecture)
+ *   - type: Filter by document type (readme, api, function, class, architecture, module)
+ *   - path: Filter by document path (partial match)
+ *   - limit: Limit number of results (default: 50)
+ *   - offset: Offset for pagination (default: 0)
  */
 router.get("/:id/docs", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const repoId = parseInt(req.params.id);
-    const { type } = req.query;
+    const { type, path: pathFilter, limit = 50, offset = 0 } = req.query;
 
     if (isNaN(repoId)) {
       return res.status(400).json({
@@ -313,13 +323,14 @@ router.get("/:id/docs", authenticateToken, async (req, res) => {
       userId,
       repoId,
       filterType: type,
+      pathFilter,
     });
 
     // Verify user owns this repository
-    const repoCheck = await query(`SELECT id FROM repositories WHERE id = $1 AND user_id = $2`, [
-      repoId,
-      userId,
-    ]);
+    const repoCheck = await query(
+      `SELECT id, name, full_name as "fullName" FROM repositories WHERE id = $1 AND user_id = $2`,
+      [repoId, userId]
+    );
 
     if (repoCheck.rows.length === 0) {
       return res.status(404).json({
@@ -327,218 +338,84 @@ router.get("/:id/docs", authenticateToken, async (req, res) => {
       });
     }
 
-    // For development/testing, return mock documentation
-    if (process.env.NODE_ENV !== "production") {
-      const mockDocs = [
-        {
-          id: 1,
-          repoId,
-          path: "README.md",
-          type: "readme",
-          content: `# AutoDocs AI
+    const repo = repoCheck.rows[0];
 
-## Overview
-AI-powered documentation platform that automatically generates and maintains comprehensive code documentation for your repositories.
+    // Build query for documents
+    let docQuery = `
+      SELECT
+        id,
+        repo_id as "repoId",
+        path,
+        content,
+        type,
+        generated_at as "generatedAt",
+        updated_at as "updatedAt"
+      FROM documents
+      WHERE repo_id = $1
+    `;
+    const params = [repoId];
+    let paramIndex = 2;
 
-## Features
-- Automatic code analysis using Tree-sitter
-- AI-powered documentation generation with Claude
-- Real-time updates via GitHub webhooks
-- Interactive chat interface for code queries
-
-## Getting Started
-\`\`\`bash
-npm install
-npm run dev
-\`\`\`
-
-## Architecture
-See the architecture documentation for detailed system design.`,
-          generatedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-          updatedAt: new Date(Date.now() - 3600000).toISOString(),
-        },
-        {
-          id: 2,
-          repoId,
-          path: "api/authentication.md",
-          type: "api",
-          content: `# Authentication API
-
-## POST /api/auth/github
-Handles GitHub OAuth authentication flow.
-
-### Request Body
-\`\`\`json
-{
-  "code": "string"
-}
-\`\`\`
-
-### Response
-\`\`\`json
-{
-  "token": "jwt_token",
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "name": "User Name"
-  }
-}
-\`\`\`
-
-### Error Codes
-- 400: Invalid or missing authorization code
-- 500: Authentication failed`,
-          generatedAt: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
-          updatedAt: new Date(Date.now() - 7200000).toISOString(),
-        },
-        {
-          id: 3,
-          repoId,
-          path: "functions/authenticateToken.md",
-          type: "function",
-          content: `# authenticateToken
-
-Middleware function that validates JWT tokens from incoming requests.
-
-## Signature
-\`\`\`javascript
-function authenticateToken(req, res, next)
-\`\`\`
-
-## Parameters
-- \`req\` (Request): Express request object
-- \`res\` (Response): Express response object
-- \`next\` (Function): Next middleware function
-
-## Returns
-Calls \`next()\` if authentication succeeds, otherwise sends 401/403 error response.
-
-## Usage
-\`\`\`javascript
-router.get('/protected', authenticateToken, (req, res) => {
-  // req.user is populated with decoded token data
-  res.json({ message: 'Protected route', user: req.user });
-});
-\`\`\``,
-          generatedAt: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
-          updatedAt: new Date(Date.now() - 10800000).toISOString(),
-        },
-        {
-          id: 4,
-          repoId,
-          path: "classes/DatabaseConnection.md",
-          type: "class",
-          content: `# DatabaseConnection
-
-Manages PostgreSQL database connections using connection pooling.
-
-## Properties
-- \`pool\`: pg.Pool - Connection pool instance
-- \`connected\`: boolean - Connection status
-
-## Methods
-
-### constructor(config)
-Initializes the database connection pool.
-
-### async query(sql, params)
-Executes a parameterized SQL query.
-
-**Parameters:**
-- \`sql\` (string): SQL query with placeholders
-- \`params\` (Array): Query parameters
-
-**Returns:** Promise<QueryResult>
-
-### async close()
-Closes all connections in the pool.`,
-          generatedAt: new Date(Date.now() - 14400000).toISOString(), // 4 hours ago
-          updatedAt: new Date(Date.now() - 14400000).toISOString(),
-        },
-        {
-          id: 5,
-          repoId,
-          path: "architecture/system-overview.md",
-          type: "architecture",
-          content: `# System Architecture
-
-## Overview
-AutoDocs AI follows a microservices architecture with separate frontend and backend services.
-
-## Components
-
-### Frontend (Next.js)
-- Server-side rendering
-- API routes for backend proxying
-- React components with TypeScript
-- Tailwind CSS for styling
-
-### Backend (Node.js/Express)
-- RESTful API endpoints
-- GitHub OAuth integration
-- Database connections (PostgreSQL)
-- AI service integration (Claude API)
-
-### Database (PostgreSQL)
-- User accounts and sessions
-- Repository metadata
-- Generated documentation
-- Analysis job queue
-
-## Data Flow
-\`\`\`mermaid
-graph LR
-    A[User] --> B[Next.js Frontend]
-    B --> C[Express Backend]
-    C --> D[PostgreSQL]
-    C --> E[Claude API]
-    C --> F[GitHub API]
-\`\`\`
-
-## Security
-- JWT-based authentication
-- HTTP-only cookies
-- CORS configuration
-- Rate limiting`,
-          generatedAt: new Date(Date.now() - 18000000).toISOString(), // 5 hours ago
-          updatedAt: new Date(Date.now() - 18000000).toISOString(),
-        },
-      ];
-
-      // Filter by type if specified
-      let filteredDocs = mockDocs;
-      if (type) {
-        filteredDocs = mockDocs.filter((doc) => doc.type === type);
-        logger.info("Filtered documentation by type", {
-          userId,
-          repoId,
-          type,
-          count: filteredDocs.length,
-        });
-      }
-
-      logger.info("Returning mock documentation", {
-        userId,
-        repoId,
-        docCount: filteredDocs.length,
-      });
-
-      return res.json({
-        documents: filteredDocs,
-        count: filteredDocs.length,
-        repository: {
-          id: repoId,
-          name: "autodocs-ai",
-        },
-      });
+    // Add type filter if specified
+    if (type) {
+      docQuery += ` AND type = $${paramIndex}`;
+      params.push(type);
+      paramIndex++;
     }
 
-    // Production: Query database for documents
-    // TODO: Implement database query when database is set up
+    // Add path filter if specified
+    if (pathFilter) {
+      docQuery += ` AND path ILIKE $${paramIndex}`;
+      params.push(`%${pathFilter}%`);
+      paramIndex++;
+    }
 
-    res.status(404).json({
-      error: "Repository not found or no documentation available",
+    // Add ordering, limit, and offset
+    docQuery += ` ORDER BY updated_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(parseInt(limit), parseInt(offset));
+
+    const docResult = await query(docQuery, params);
+
+    // Get total count for pagination
+    let countQuery = `SELECT COUNT(*) as total FROM documents WHERE repo_id = $1`;
+    const countParams = [repoId];
+    let countParamIndex = 2;
+
+    if (type) {
+      countQuery += ` AND type = $${countParamIndex}`;
+      countParams.push(type);
+      countParamIndex++;
+    }
+
+    if (pathFilter) {
+      countQuery += ` AND path ILIKE $${countParamIndex}`;
+      countParams.push(`%${pathFilter}%`);
+    }
+
+    const countResult = await query(countQuery, countParams);
+    const total = parseInt(countResult.rows[0]?.total || 0);
+
+    logger.info("Fetched repository documentation", {
+      userId,
+      repoId,
+      docCount: docResult.rows.length,
+      total,
+    });
+
+    res.json({
+      documents: docResult.rows,
+      count: docResult.rows.length,
+      total,
+      pagination: {
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: parseInt(offset) + docResult.rows.length < total,
+      },
+      repository: {
+        id: repo.id,
+        name: repo.name,
+        fullName: repo.fullName,
+      },
     });
   } catch (error) {
     logger.error("Error fetching repository documentation", {
@@ -550,6 +427,56 @@ graph LR
 
     res.status(500).json({
       error: "Failed to fetch documentation",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/repos/:id/docs/:docId
+ * Get a specific documentation document
+ */
+router.get("/:id/docs/:docId", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const docId = parseInt(req.params.docId);
+
+    if (isNaN(repoId) || isNaN(docId)) {
+      return res.status(400).json({
+        error: "Invalid repository or document ID",
+      });
+    }
+
+    // Verify user owns the repository and get the document
+    const result = await query(
+      `SELECT d.id, d.repo_id as "repoId", d.path, d.content, d.type,
+              d.generated_at as "generatedAt", d.updated_at as "updatedAt"
+       FROM documents d
+       JOIN repositories r ON d.repo_id = r.id
+       WHERE d.id = $1 AND d.repo_id = $2 AND r.user_id = $3`,
+      [docId, repoId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Document not found",
+      });
+    }
+
+    res.json({
+      document: result.rows[0],
+    });
+  } catch (error) {
+    logger.error("Error fetching document", {
+      error: error.message,
+      userId: req.user?.id,
+      repoId: req.params.id,
+      docId: req.params.docId,
+    });
+
+    res.status(500).json({
+      error: "Failed to fetch document",
       message: process.env.NODE_ENV === "production" ? undefined : error.message,
     });
   }
@@ -752,13 +679,18 @@ router.post("/:id/chat", authenticateToken, async (req, res) => {
 
 /**
  * POST /api/repos/:id/analyze
- * Trigger documentation regeneration for a repository
+ * Trigger full analysis and documentation generation for a repository
+ *
+ * Body:
+ *   - types: Array of doc types to generate (readme, architecture, function, class, module)
+ *   - generateDocs: Whether to generate documentation (default: true)
+ *   - force: Force re-analysis even if recently analyzed (default: false)
  */
 router.post("/:id/analyze", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const repoId = parseInt(req.params.id);
-    const { force = false, types = [] } = req.body;
+    const { force = false, types = [], generateDocs = true } = req.body;
 
     if (isNaN(repoId)) {
       return res.status(400).json({
@@ -766,15 +698,8 @@ router.post("/:id/analyze", authenticateToken, async (req, res) => {
       });
     }
 
-    logger.info("Triggering documentation analysis", {
-      userId,
-      repoId,
-      force,
-      types,
-    });
-
     // Validate types if provided
-    const validTypes = ["readme", "api", "function", "class", "architecture"];
+    const validTypes = ["readme", "api", "function", "class", "architecture", "module"];
     if (types.length > 0) {
       const invalidTypes = types.filter((type) => !validTypes.includes(type));
       if (invalidTypes.length > 0) {
@@ -786,23 +711,73 @@ router.post("/:id/analyze", authenticateToken, async (req, res) => {
       }
     }
 
-    // For development/testing, return success
-    if (process.env.NODE_ENV !== "production") {
-      return res.json({
-        message: "Documentation regeneration started",
-        repoId,
-        jobId: `job_${Date.now()}`,
-        estimatedTime: "2-5 minutes",
-        types: types.length > 0 ? types : validTypes,
+    // Get repository details
+    const repoResult = await query(
+      `SELECT id, full_name as "fullName", default_branch as "defaultBranch", status
+       FROM repositories WHERE id = $1 AND user_id = $2`,
+      [repoId, userId]
+    );
+
+    if (repoResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
       });
     }
 
-    // Production: Create analysis job in database
-    // TODO: Implement job creation when database is set up
-    // TODO: Trigger actual analysis with Claude AI
+    const repo = repoResult.rows[0];
 
-    res.status(501).json({
-      error: "Not implemented in production yet",
+    // Check if already processing
+    if (repo.status === "processing" && !force) {
+      return res.status(409).json({
+        error: "Repository is already being analyzed",
+        message: "Use force=true to override",
+      });
+    }
+
+    // Check if documentation service is available
+    if (generateDocs && !isDocumentationServiceAvailable()) {
+      logger.warn("Documentation service not available", { repoId });
+    }
+
+    logger.info("Triggering repository analysis", {
+      userId,
+      repoId,
+      fullName: repo.fullName,
+      types,
+      generateDocs,
+      force,
+    });
+
+    // Create analysis job in database
+    const jobInsertResult = await query(
+      `INSERT INTO analysis_jobs (repo_id, status, trigger_type, started_at)
+       VALUES ($1, 'queued', 'manual', NOW())
+       RETURNING id`,
+      [repoId]
+    ).catch((err) => {
+      logger.debug("Could not insert analysis_job", { error: err.message });
+      return { rows: [] };
+    });
+
+    // Add job to queue
+    const job = await addFullAnalysisJob({
+      repositoryId: repoId,
+      repoFullName: repo.fullName,
+      userId,
+      defaultBranch: repo.defaultBranch || "main",
+      generateDocs,
+      types: types.length > 0 ? types : validTypes,
+    });
+
+    res.json({
+      message: "Repository analysis started",
+      repoId,
+      jobId: job.id,
+      analysisJobId: jobInsertResult.rows[0]?.id,
+      status: "queued",
+      types: types.length > 0 ? types : validTypes,
+      generateDocs,
+      documentationServiceAvailable: isDocumentationServiceAvailable(),
     });
   } catch (error) {
     logger.error("Error triggering analysis", {
@@ -814,6 +789,169 @@ router.post("/:id/analyze", authenticateToken, async (req, res) => {
 
     res.status(500).json({
       error: "Failed to start analysis",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/repos/:id/generate-docs
+ * Trigger documentation generation only (without re-analyzing code)
+ */
+router.post("/:id/generate-docs", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const { types = [] } = req.body;
+
+    if (isNaN(repoId)) {
+      return res.status(400).json({
+        error: "Invalid repository ID",
+      });
+    }
+
+    // Check if documentation service is available
+    if (!isDocumentationServiceAvailable()) {
+      return res.status(503).json({
+        error: "Documentation service not available",
+        message: "ANTHROPIC_API_KEY is not configured",
+      });
+    }
+
+    // Validate types
+    const validTypes = ["readme", "architecture", "function", "class", "module"];
+    if (types.length > 0) {
+      const invalidTypes = types.filter((type) => !validTypes.includes(type));
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({
+          error: "Invalid documentation types",
+          invalidTypes,
+          validTypes,
+        });
+      }
+    }
+
+    // Get repository details
+    const repoResult = await query(
+      `SELECT id, full_name as "fullName", default_branch as "defaultBranch", status
+       FROM repositories WHERE id = $1 AND user_id = $2`,
+      [repoId, userId]
+    );
+
+    if (repoResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
+      });
+    }
+
+    const repo = repoResult.rows[0];
+
+    logger.info("Triggering documentation generation", {
+      userId,
+      repoId,
+      fullName: repo.fullName,
+      types,
+    });
+
+    // Add documentation generation job to queue
+    const job = await addDocumentationGenerationJob({
+      repositoryId: repoId,
+      repoFullName: repo.fullName,
+      userId,
+      defaultBranch: repo.defaultBranch || "main",
+      types: types.length > 0 ? types : validTypes,
+    });
+
+    res.json({
+      message: "Documentation generation started",
+      repoId,
+      jobId: job.id,
+      status: "queued",
+      types: types.length > 0 ? types : validTypes,
+    });
+  } catch (error) {
+    logger.error("Error triggering documentation generation", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id,
+      repoId: req.params.id,
+    });
+
+    res.status(500).json({
+      error: "Failed to start documentation generation",
+      message: process.env.NODE_ENV === "production" ? undefined : error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/repos/:id/jobs/:jobId
+ * Get the status of an analysis or documentation generation job
+ */
+router.get("/:id/jobs/:jobId", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const repoId = parseInt(req.params.id);
+    const { jobId } = req.params;
+
+    if (isNaN(repoId)) {
+      return res.status(400).json({
+        error: "Invalid repository ID",
+      });
+    }
+
+    // Verify user owns the repository
+    const repoCheck = await query(`SELECT id FROM repositories WHERE id = $1 AND user_id = $2`, [
+      repoId,
+      userId,
+    ]);
+
+    if (repoCheck.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
+      });
+    }
+
+    // Get job status from queue
+    const jobStatus = await getJobStatus(QUEUE_NAMES.DOCUMENTATION_ANALYSIS, jobId);
+
+    if (!jobStatus) {
+      return res.status(404).json({
+        error: "Job not found",
+      });
+    }
+
+    // Verify job belongs to this repository
+    if (String(jobStatus.data?.repositoryId) !== String(repoId)) {
+      return res.status(404).json({
+        error: "Job not found for this repository",
+      });
+    }
+
+    res.json({
+      job: {
+        id: jobStatus.id,
+        name: jobStatus.name,
+        status: jobStatus.state,
+        progress: jobStatus.progress,
+        result: jobStatus.returnvalue,
+        error: jobStatus.failedReason,
+        attempts: jobStatus.attemptsMade,
+        createdAt: new Date(jobStatus.timestamp).toISOString(),
+        finishedAt: jobStatus.finishedOn ? new Date(jobStatus.finishedOn).toISOString() : null,
+        processedAt: jobStatus.processedOn ? new Date(jobStatus.processedOn).toISOString() : null,
+      },
+    });
+  } catch (error) {
+    logger.error("Error fetching job status", {
+      error: error.message,
+      userId: req.user?.id,
+      repoId: req.params.id,
+      jobId: req.params.jobId,
+    });
+
+    res.status(500).json({
+      error: "Failed to fetch job status",
       message: process.env.NODE_ENV === "production" ? undefined : error.message,
     });
   }

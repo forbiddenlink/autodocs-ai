@@ -2,6 +2,7 @@ import express from "express";
 import crypto from "crypto";
 import { logger } from "../utils/logger.js";
 import { query } from "../config/database.js";
+import { addDocumentationJob, getQueueStats, QUEUE_NAMES } from "../services/jobQueueService.js";
 
 const router = express.Router();
 
@@ -135,36 +136,41 @@ async function handlePushEvent(payload, deliveryId) {
     changedFiles.push(...(commit.modified || []));
   }
 
+  // Remove duplicates from changed files
+  const uniqueChangedFiles = [...new Set(changedFiles)];
+
   logger.info("Triggering documentation regeneration", {
     repoId: repo.id,
     repoName: repo.name,
-    changedFiles: changedFiles.length,
+    changedFiles: uniqueChangedFiles.length,
     deliveryId,
   });
 
-  // Queue the analysis job
-  // TODO: Implement job queue (e.g., Bull, BullMQ) for async processing
-  // For now, we just update the status and log
-  // In production, this would:
-  // 1. Fetch the changed files from GitHub
-  // 2. Parse them with tree-sitter
-  // 3. Generate embeddings and update Pinecone
-  // 4. Regenerate affected documentation with Claude
-
-  // Mark as needing analysis
-  await query(
-    `INSERT INTO analysis_jobs (repository_id, status, changed_files, webhook_delivery_id, created_at)
-     VALUES ($1, $2, $3, $4, NOW())
-     ON CONFLICT (repository_id) WHERE status = 'pending'
-     DO UPDATE SET changed_files = EXCLUDED.changed_files, updated_at = NOW()`,
-    [repo.id, "pending", JSON.stringify(changedFiles), deliveryId]
-  ).catch((err) => {
-    // Table might not exist yet - log and continue
-    logger.warn("Could not insert analysis job", { error: err.message });
+  // Add job to the BullMQ queue for async processing
+  const job = await addDocumentationJob({
+    repositoryId: repo.id,
+    repoFullName,
+    userId: repo.user_id,
+    changedFiles: uniqueChangedFiles,
+    defaultBranch,
+    webhookDeliveryId: deliveryId,
   });
 
-  logger.info("Documentation regeneration queued", {
+  // Also track in database for historical reference
+  await query(
+    `INSERT INTO analysis_jobs (repository_id, status, changed_files, webhook_delivery_id, job_id, created_at)
+     VALUES ($1, $2, $3, $4, $5, NOW())
+     ON CONFLICT (repository_id) WHERE status = 'pending'
+     DO UPDATE SET changed_files = EXCLUDED.changed_files, job_id = EXCLUDED.job_id, updated_at = NOW()`,
+    [repo.id, "pending", JSON.stringify(uniqueChangedFiles), deliveryId, job.id]
+  ).catch((err) => {
+    // Table might not exist yet - log and continue
+    logger.warn("Could not insert analysis job record", { error: err.message });
+  });
+
+  logger.info("Documentation regeneration job queued", {
     repoId: repo.id,
+    jobId: job.id,
     deliveryId,
   });
 }
@@ -179,12 +185,22 @@ async function handlePushEvent(payload, deliveryId) {
  *       200:
  *         description: Webhook status
  */
-router.get("/status", (req, res) => {
+router.get("/status", async (req, res) => {
   const configured = !!process.env.GITHUB_WEBHOOK_SECRET;
+
+  // Get queue statistics
+  let queueStats = null;
+  try {
+    queueStats = await getQueueStats(QUEUE_NAMES.DOCUMENTATION_ANALYSIS);
+  } catch (error) {
+    logger.warn("Could not get queue stats", { error: error.message });
+  }
+
   res.json({
     configured,
     endpoint: "/api/webhooks/github",
     supportedEvents: ["push", "ping"],
+    queue: queueStats,
   });
 });
 

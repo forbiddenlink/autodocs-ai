@@ -25,6 +25,10 @@ import repoRoutes from "./routes/repos.js";
 import testDbRoutes from "./routes/test-db.js";
 import webhookRoutes from "./routes/webhooks.js";
 import { swaggerSpec, swaggerUiServe, swaggerUiSetup } from "./config/swagger.js";
+import { checkRedisHealth, closeRedisConnection } from "./config/redis.js";
+import { createDocumentationWorker, closeWorker } from "./workers/documentationWorker.js";
+import { closeQueues } from "./services/jobQueueService.js";
+import { checkEmbeddingHealth } from "./services/embeddingService.js";
 
 // Get the directory name of the current module
 // Trigger restart - using PORT=4000
@@ -153,6 +157,39 @@ app.get("/health", async (req, res) => {
       });
     }
 
+    // Check Redis connectivity
+    try {
+      const redisStart = Date.now();
+      const redisHealth = await checkRedisHealth();
+      const redisDuration = Date.now() - redisStart;
+
+      healthCheck.services.redis = {
+        status: redisHealth.status,
+        responseTime: `${redisDuration}ms`,
+        ...(redisHealth.error && { error: redisHealth.error }),
+      };
+
+      if (redisHealth.status !== "healthy") {
+        healthCheck.status = "degraded";
+      }
+
+      logger.info("Health check: Redis", {
+        service: "redis",
+        status: redisHealth.status,
+        responseTime: redisDuration,
+        correlationId: req.headers["x-correlation-id"],
+      });
+    } catch (redisError) {
+      healthCheck.services.redis = {
+        status: "unhealthy",
+        error: redisError.message,
+      };
+      // Redis is optional, mark as degraded but not fully down
+      if (healthCheck.status === "ok") {
+        healthCheck.status = "degraded";
+      }
+    }
+
     // Check memory usage
     const memUsage = process.memoryUsage();
     healthCheck.services.memory = {
@@ -160,6 +197,37 @@ app.get("/health", async (req, res) => {
       heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
       heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
       external: `${Math.round(memUsage.external / 1024 / 1024)}MB`,
+    };
+
+    // Check embedding service
+    try {
+      const embeddingHealth = await checkEmbeddingHealth();
+      healthCheck.services.embeddings = embeddingHealth;
+
+      // Degraded if using placeholder embeddings, but not unhealthy
+      if (embeddingHealth.status === "degraded") {
+        logger.info("Health check: Embeddings using placeholder mode", {
+          service: "embeddings",
+          message: embeddingHealth.message,
+        });
+      } else if (embeddingHealth.status === "unhealthy") {
+        if (healthCheck.status === "ok") {
+          healthCheck.status = "degraded";
+        }
+      }
+    } catch (embeddingError) {
+      healthCheck.services.embeddings = {
+        status: "unhealthy",
+        error: embeddingError.message,
+      };
+      if (healthCheck.status === "ok") {
+        healthCheck.status = "degraded";
+      }
+    }
+
+    // Worker status
+    healthCheck.services.worker = {
+      status: documentationWorker ? "running" : "not_started",
     };
 
     const responseTime = Date.now() - startTime;
@@ -244,6 +312,9 @@ if (process.env.NODE_ENV !== "production") {
 let isReady = false;
 let isShuttingDown = false;
 
+// Worker instance (initialized after server starts)
+let documentationWorker = null;
+
 // Readiness probe endpoint (for deployment orchestrators)
 app.get("/readiness", (req, res) => {
   if (isReady && !isShuttingDown) {
@@ -285,14 +356,26 @@ app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 // Start server
-const server = app.listen(PORT, () => {
-  logger.info(`🚀 AutoDocs Backend running on port ${PORT}`);
-  logger.info(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-  logger.info(`🔗 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:3000"}`);
+const server = app.listen(PORT, async () => {
+  logger.info(`AutoDocs Backend running on port ${PORT}`);
+  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+  logger.info(`Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:3000"}`);
+
+  // Start documentation worker if Redis is available
+  if (process.env.REDIS_HOST || process.env.NODE_ENV === "development") {
+    try {
+      documentationWorker = createDocumentationWorker();
+      logger.info("Documentation worker started");
+    } catch (workerError) {
+      logger.warn("Could not start documentation worker - Redis may not be available", {
+        error: workerError.message,
+      });
+    }
+  }
 
   // Mark server as ready after startup
   isReady = true;
-  logger.info("✅ Server is ready to accept connections");
+  logger.info("Server is ready to accept connections");
 });
 
 // Graceful shutdown handler
@@ -305,12 +388,29 @@ const gracefulShutdown = async (signal) => {
     logger.info("HTTP server closed. No longer accepting new connections.");
 
     try {
+      // Close documentation worker
+      if (documentationWorker) {
+        logger.info("Closing documentation worker...");
+        await closeWorker(documentationWorker);
+        logger.info("Documentation worker closed.");
+      }
+
+      // Close job queues
+      logger.info("Closing job queues...");
+      await closeQueues();
+      logger.info("Job queues closed.");
+
+      // Close Redis connections
+      logger.info("Closing Redis connections...");
+      await closeRedisConnection();
+      logger.info("Redis connections closed.");
+
       // Close database connections
       logger.info("Closing database connection pool...");
       await pool.end();
       logger.info("Database connection pool closed.");
 
-      logger.info("✅ Graceful shutdown completed successfully");
+      logger.info("Graceful shutdown completed successfully");
       process.exit(0);
     } catch (error) {
       logger.error("Error during graceful shutdown", {

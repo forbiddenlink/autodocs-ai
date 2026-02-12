@@ -1,5 +1,11 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { logger } from "../utils/logger.js";
+import {
+  generateEmbedding,
+  generateChunkEmbeddings,
+  generatePlaceholderEmbedding,
+  isEmbeddingServiceAvailable,
+} from "./embeddingService.js";
 
 let pineconeClient = null;
 let pineconeIndex = null;
@@ -30,48 +36,53 @@ export function getIndex() {
   return pineconeIndex;
 }
 
-/**
- * Generate a simple embedding using character-level hashing
- * NOTE: This is a placeholder. In production, use a proper embedding model like:
- * - OpenAI text-embedding-3-small
- * - Voyage AI voyage-code-2
- * - Cohere embed-english-v3.0
- *
- * @param {string} text - Text to embed
- * @param {number} dimensions - Embedding dimensions (default 1536 for OpenAI compatibility)
- * @returns {number[]}
- */
-export function generatePlaceholderEmbedding(text, dimensions = 1536) {
-  // Simple hash-based embedding for development/testing
-  // Replace with real embedding API in production
-  const embedding = new Array(dimensions).fill(0);
-  for (let i = 0; i < text.length; i++) {
-    const charCode = text.charCodeAt(i);
-    embedding[i % dimensions] += charCode / 1000;
-    embedding[(i + charCode) % dimensions] += 0.01;
-  }
-  // Normalize
-  const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-  return embedding.map((val) => val / (magnitude || 1));
-}
+// Re-export generatePlaceholderEmbedding for backward compatibility
+export { generatePlaceholderEmbedding } from "./embeddingService.js";
 
 /**
- * Upsert code chunks into Pinecone
+ * Upsert code chunks into Pinecone with real embeddings
  *
  * @param {string} repoId - Repository ID
  * @param {Array} chunks - Code chunks from codeAnalysisService
- * @param {function} embedFn - Function to generate embeddings (optional, uses placeholder if not provided)
+ * @param {object} options - Options
+ * @param {boolean} options.useRealEmbeddings - Force use of placeholder embeddings if false
  */
-export async function upsertCodeChunks(repoId, chunks, embedFn = generatePlaceholderEmbedding) {
+export async function upsertCodeChunks(repoId, chunks, options = {}) {
+  const { useRealEmbeddings = true } = options;
   const index = getIndex();
 
+  if (chunks.length === 0) {
+    logger.debug("No chunks to upsert", { repoId });
+    return 0;
+  }
+
+  // Log embedding mode
+  const usingRealEmbeddings = useRealEmbeddings && isEmbeddingServiceAvailable();
+  logger.info("Generating embeddings for code chunks", {
+    repoId,
+    chunksCount: chunks.length,
+    embeddingMode: usingRealEmbeddings ? "openai" : "placeholder",
+  });
+
+  // Generate embeddings - either real or placeholder
+  let embeddings;
+  if (usingRealEmbeddings) {
+    embeddings = await generateChunkEmbeddings(chunks);
+  } else {
+    // Fallback to placeholder embeddings
+    embeddings = chunks.map((chunk) => {
+      const text = `${chunk.docstring || ""}\n${chunk.content}`.trim();
+      return generatePlaceholderEmbedding(text);
+    });
+  }
+
+  // Build vectors with embeddings
   const vectors = chunks.map((chunk, i) => {
     const id = `${repoId}-${chunk.path}-${chunk.startLine}`;
-    const text = `${chunk.docstring || ""}\n${chunk.content}`.trim();
 
     return {
       id,
-      values: embedFn(text),
+      values: embeddings[i],
       metadata: {
         repoId: String(repoId),
         path: chunk.path,
@@ -85,7 +96,7 @@ export async function upsertCodeChunks(repoId, chunks, embedFn = generatePlaceho
     };
   });
 
-  // Upsert in batches of 100
+  // Upsert in batches of 100 (Pinecone limit)
   const batchSize = 100;
   for (let i = 0; i < vectors.length; i += batchSize) {
     const batch = vectors.slice(i, i + batchSize);
@@ -94,30 +105,42 @@ export async function upsertCodeChunks(repoId, chunks, embedFn = generatePlaceho
       repoId,
       batchStart: i,
       batchSize: batch.length,
+      totalChunks: vectors.length,
     });
   }
+
+  logger.info("Code chunks upsert completed", {
+    repoId,
+    totalChunks: vectors.length,
+    embeddingMode: usingRealEmbeddings ? "openai" : "placeholder",
+  });
 
   return vectors.length;
 }
 
 /**
- * Search for relevant code chunks
+ * Search for relevant code chunks using semantic search
  *
  * @param {string} repoId - Repository ID to search within
  * @param {string} query - Search query
  * @param {number} topK - Number of results to return
- * @param {function} embedFn - Function to generate embeddings
+ * @param {object} options - Options
+ * @param {boolean} options.useRealEmbeddings - Force use of placeholder embeddings if false
  * @returns {Promise<Array>} Matching code chunks with scores
  */
-export async function searchCodeChunks(
-  repoId,
-  query,
-  topK = 5,
-  embedFn = generatePlaceholderEmbedding
-) {
+export async function searchCodeChunks(repoId, query, topK = 5, options = {}) {
+  const { useRealEmbeddings = true } = options;
   const index = getIndex();
 
-  const queryEmbedding = embedFn(query);
+  // Generate query embedding
+  const usingRealEmbeddings = useRealEmbeddings && isEmbeddingServiceAvailable();
+  let queryEmbedding;
+
+  if (usingRealEmbeddings) {
+    queryEmbedding = await generateEmbedding(query);
+  } else {
+    queryEmbedding = generatePlaceholderEmbedding(query);
+  }
 
   const results = await index.query({
     vector: queryEmbedding,
@@ -132,6 +155,7 @@ export async function searchCodeChunks(
     repoId,
     query: query.substring(0, 100),
     matchCount: results.matches?.length || 0,
+    embeddingMode: usingRealEmbeddings ? "openai" : "placeholder",
   });
 
   return (results.matches || []).map((match) => ({
