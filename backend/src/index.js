@@ -23,6 +23,7 @@ import authRoutes from "./routes/auth.js";
 import testAuthRoutes from "./routes/test-auth.js";
 import repoRoutes from "./routes/repos.js";
 import testDbRoutes from "./routes/test-db.js";
+import webhookRoutes from "./routes/webhooks.js";
 import { swaggerSpec, swaggerUiServe, swaggerUiSetup } from "./config/swagger.js";
 
 // Get the directory name of the current module
@@ -208,6 +209,7 @@ app.get("/api/metrics", async (req, res) => {
 // API routes with rate limiting
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/repos", apiLimiter, repoRoutes);
+app.use("/api/webhooks", webhookRoutes);
 
 // API Documentation (Swagger/OpenAPI)
 app.use("/api/docs", swaggerUiServe, swaggerUiSetup);

@@ -3,6 +3,7 @@ import { logger } from "../utils/logger.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { query } from "../config/database.js";
 import { generateChatResponse } from "../services/claudeService.js";
+import { searchCodeChunks } from "../services/pineconeService.js";
 
 const router = express.Router();
 
@@ -680,9 +681,29 @@ router.post("/:id/chat", authenticateToken, async (req, res) => {
 
     const repo = repoResult.rows[0] || { name: "Unknown", description: "" };
 
-    // TODO: Add RAG/vector search for relevant code chunks when Pinecone is configured
-    // For now, we'll call Claude without code context
-    const codeChunks = [];
+    // RAG: Search for relevant code chunks using Pinecone
+    let codeChunks = [];
+    try {
+      if (process.env.PINECONE_API_KEY) {
+        const searchResults = await searchCodeChunks(repoId, message, 5);
+        codeChunks = searchResults.map((result) => ({
+          path: result.path,
+          content: result.content,
+          language: result.language,
+          type: result.type,
+          name: result.name,
+        }));
+        logger.info("RAG search completed", {
+          repoId,
+          chunkCount: codeChunks.length,
+        });
+      }
+    } catch (ragError) {
+      logger.warn("RAG search failed, continuing without context", {
+        error: ragError.message,
+        repoId,
+      });
+    }
 
     try {
       const { response, usage } = await generateChatResponse(message, {
