@@ -2,15 +2,39 @@ import express from "express";
 import { logger } from "../utils/logger.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { query } from "../config/database.js";
+import { generateChatResponse } from "../services/claudeService.js";
 
 const router = express.Router();
 
 /**
- * GET /api/repos
- * Get all repositories for the authenticated user
- *
- * In development mode, returns mock data
- * In production, fetches from database and GitHub API
+ * @swagger
+ * /api/repos:
+ *   get:
+ *     summary: Get all repositories for the authenticated user
+ *     tags: [Repositories]
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: List of repositories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 repositories:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Repository'
+ *                 count:
+ *                   type: integer
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get("/", authenticateToken, async (req, res) => {
   try {
@@ -64,10 +88,53 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 /**
- * POST /api/repos
- * Add a repository to track for documentation
- *
- * Body: { githubRepoId, name, url, fullName, description, language, private }
+ * @swagger
+ * /api/repos:
+ *   post:
+ *     summary: Add a repository to track for documentation
+ *     tags: [Repositories]
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [githubRepoId, name, url, fullName]
+ *             properties:
+ *               githubRepoId:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *               fullName:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               language:
+ *                 type: string
+ *               private:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Repository added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 repository:
+ *                   $ref: '#/components/schemas/Repository'
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Authentication required
  */
 router.post("/", authenticateToken, async (req, res) => {
   try {
@@ -488,11 +555,43 @@ graph LR
 });
 
 /**
- * POST /api/repos/:id/chat
- * Send a chat message and get AI response
- *
- * Body: { message: string }
- * Returns: { response: string, timestamp: string }
+ * @swagger
+ * /api/repos/{id}/chat:
+ *   post:
+ *     summary: Send a chat message and get AI response
+ *     description: Ask questions about the repository's codebase using AI
+ *     tags: [Chat]
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Repository ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ChatMessage'
+ *     responses:
+ *       200:
+ *         description: AI-generated response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ChatResponse'
+ *       400:
+ *         description: Invalid request (missing message, message too long)
+ *       401:
+ *         description: Authentication required
+ *       404:
+ *         description: Repository not found
+ *       503:
+ *         description: AI service not configured
  */
 router.post("/:id/chat", authenticateToken, async (req, res) => {
   try {
@@ -574,16 +673,47 @@ router.post("/:id/chat", authenticateToken, async (req, res) => {
       });
     }
 
-    // Production: Integrate with Claude API and RAG
-    // TODO: Implement when AI backend is ready
-    // 1. Perform vector search on embeddings to find relevant code chunks
-    // 2. Send context + message to Claude API
-    // 3. Store message and response in database
-    // 4. Return AI-generated response
+    // Get repository details for context
+    const repoResult = await query(`SELECT name, description FROM repositories WHERE id = $1`, [
+      repoId,
+    ]);
 
-    res.status(501).json({
-      error: "AI chat not yet implemented in production",
-    });
+    const repo = repoResult.rows[0] || { name: "Unknown", description: "" };
+
+    // TODO: Add RAG/vector search for relevant code chunks when Pinecone is configured
+    // For now, we'll call Claude without code context
+    const codeChunks = [];
+
+    try {
+      const { response, usage } = await generateChatResponse(message, {
+        repoName: repo.name,
+        repoDescription: repo.description,
+        codeChunks,
+      });
+
+      logger.info("AI chat response generated", {
+        userId,
+        repoId,
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
+      });
+
+      res.json({
+        response,
+        timestamp: new Date().toISOString(),
+        usage,
+      });
+    } catch (aiError) {
+      // If Claude API fails, provide a helpful error
+      if (aiError.message?.includes("ANTHROPIC_API_KEY")) {
+        logger.warn("Claude API not configured", { repoId });
+        return res.status(503).json({
+          error: "AI service not configured",
+          message: "The AI chat feature requires an Anthropic API key to be configured.",
+        });
+      }
+      throw aiError;
+    }
   } catch (error) {
     logger.error("Error processing chat message", {
       error: error.message,

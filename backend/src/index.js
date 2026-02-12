@@ -23,6 +23,7 @@ import authRoutes from "./routes/auth.js";
 import testAuthRoutes from "./routes/test-auth.js";
 import repoRoutes from "./routes/repos.js";
 import testDbRoutes from "./routes/test-db.js";
+import { swaggerSpec, swaggerUiServe, swaggerUiSetup } from "./config/swagger.js";
 
 // Get the directory name of the current module
 // Trigger restart - using PORT=4000
@@ -93,7 +94,23 @@ app.use(
 // Performance monitoring middleware
 app.use(metricsMiddleware);
 
-// Enhanced health check endpoint with comprehensive status checks
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Returns server health status including database connectivity and memory usage
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthCheck'
+ *       503:
+ *         description: Server is unhealthy or degraded
+ */
 app.get("/health", async (req, res) => {
   const startTime = Date.now();
   const healthCheck = {
@@ -191,6 +208,14 @@ app.get("/api/metrics", async (req, res) => {
 // API routes with rate limiting
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/repos", apiLimiter, repoRoutes);
+
+// API Documentation (Swagger/OpenAPI)
+app.use("/api/docs", swaggerUiServe, swaggerUiSetup);
+app.get("/api/docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
+logger.info("📚 API documentation available at /api/docs");
 
 // Test auth routes (synchronously available, no database required)
 if (process.env.NODE_ENV !== "production") {
