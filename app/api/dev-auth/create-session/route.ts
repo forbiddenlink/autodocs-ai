@@ -26,7 +26,10 @@ export async function GET() {
     };
 
     // Generate JWT token
-    const secret = process.env.JWT_SECRET || "your_jwt_secret_change_in_production";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return NextResponse.json({ error: "JWT_SECRET not configured" }, { status: 500 });
+    }
     const token = jwt.default.sign(mockUser, secret, { expiresIn: "7d" });
 
     // Create redirect response

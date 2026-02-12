@@ -4,6 +4,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { logger } from "./utils/logger.js";
@@ -56,6 +57,23 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Rate limiting configuration
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window
+  message: { error: "Too many login attempts, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  message: { error: "Too many requests, please slow down" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Correlation ID middleware for request tracking
 app.use(correlationIdMiddleware);
@@ -170,9 +188,9 @@ app.get("/api/metrics", async (req, res) => {
   }
 });
 
-// API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/repos", repoRoutes);
+// API routes with rate limiting
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/repos", apiLimiter, repoRoutes);
 
 // Test auth routes (synchronously available, no database required)
 if (process.env.NODE_ENV !== "production") {

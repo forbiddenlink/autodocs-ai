@@ -19,7 +19,14 @@ export async function GET(request: NextRequest) {
 
     // Verify token
     const jwt = await import("jsonwebtoken");
-    const secret = process.env.JWT_SECRET || "your_jwt_secret_change_in_production";
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      return NextResponse.json(
+        { authenticated: false, error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
 
     try {
       const decoded = jwt.default.verify(token, secret) as {

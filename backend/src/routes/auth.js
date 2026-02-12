@@ -372,7 +372,15 @@ router.get("/status", async (req, res) => {
 
     // Verify token
     const jwt = (await import("jsonwebtoken")).default;
-    const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      logger.error("JWT_SECRET environment variable is not set");
+      return res.status(500).json({
+        authenticated: false,
+        error: "Server configuration error",
+      });
+    }
 
     try {
       const decoded = jwt.verify(token, secret);

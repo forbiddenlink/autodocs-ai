@@ -24,7 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files
-.env*.local
+.env
+.env.*
+!.env.example
 # dev/test pages (not for production)
 /app/dev/.env
 

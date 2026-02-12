@@ -178,32 +178,34 @@ router.get("/:id", authenticateToken, async (req, res) => {
       repoId,
     });
 
-    // For development/testing, return mock data
-    if (process.env.NODE_ENV !== "production") {
-      const mockRepo = {
-        id: repoId,
-        name: "autodocs-ai",
-        description: "AI-powered documentation platform",
-        url: "https://github.com/demo-user/autodocs-ai",
-        fullName: "demo-user/autodocs-ai",
-        language: "TypeScript",
-        stars: 42,
-        lastSync: new Date().toISOString(),
-        status: "active",
-        private: false,
-        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(), // 7 days ago
-      };
+    // Query database with ownership check
+    const result = await query(
+      `SELECT
+        id,
+        user_id as "userId",
+        github_repo_id as "githubRepoId",
+        name,
+        full_name as "fullName",
+        description,
+        url,
+        default_branch as "defaultBranch",
+        status,
+        last_sync as "lastSync",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM repositories
+      WHERE id = $1 AND user_id = $2`,
+      [repoId, userId]
+    );
 
-      return res.json({
-        repository: mockRepo,
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
       });
     }
 
-    // Production: Query database
-    // TODO: Implement database query when database is set up
-
-    res.status(404).json({
-      error: "Repository not found",
+    res.json({
+      repository: result.rows[0],
     });
   } catch (error) {
     logger.error("Error fetching repository details", {
@@ -244,6 +246,18 @@ router.get("/:id/docs", authenticateToken, async (req, res) => {
       repoId,
       filterType: type,
     });
+
+    // Verify user owns this repository
+    const repoCheck = await query(`SELECT id FROM repositories WHERE id = $1 AND user_id = $2`, [
+      repoId,
+      userId,
+    ]);
+
+    if (repoCheck.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
+      });
+    }
 
     // For development/testing, return mock documentation
     if (process.env.NODE_ENV !== "production") {
@@ -511,6 +525,18 @@ router.post("/:id/chat", authenticateToken, async (req, res) => {
       messageLength: message.length,
     });
 
+    // Verify user owns this repository
+    const repoCheck = await query(`SELECT id FROM repositories WHERE id = $1 AND user_id = $2`, [
+      repoId,
+      userId,
+    ]);
+
+    if (repoCheck.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
+      });
+    }
+
     // For development/testing, return mock AI response
     if (process.env.NODE_ENV !== "production") {
       // Simulate processing delay
@@ -662,19 +688,25 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       repoId,
     });
 
-    // For development/testing, return success
-    if (process.env.NODE_ENV !== "production") {
-      return res.json({
-        message: "Repository removed successfully",
-        repoId,
+    // Delete from database with ownership check (returns the deleted row if it existed)
+    const result = await query(
+      `DELETE FROM repositories
+       WHERE id = $1 AND user_id = $2
+       RETURNING id`,
+      [repoId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Repository not found",
       });
     }
 
-    // Production: Delete from database
-    // TODO: Implement database delete when database is set up
+    logger.info("Repository deleted successfully", { userId, repoId });
 
-    res.status(501).json({
-      error: "Not implemented in production yet",
+    res.json({
+      message: "Repository removed successfully",
+      repoId,
     });
   } catch (error) {
     logger.error("Error deleting repository", {

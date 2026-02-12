@@ -18,7 +18,7 @@ export function MermaidDiagram({ chart, theme = "light" }: MermaidDiagramProps) 
     mermaid.initialize({
       startOnLoad: false,
       theme: theme === "dark" ? "dark" : "default",
-      securityLevel: "loose",
+      securityLevel: "strict",
       fontFamily: "inherit",
     });
 

@@ -27,8 +27,15 @@ export const authenticateToken = (req, res, next) => {
       });
     }
 
-    // Verify token
-    const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+    // Verify token - JWT_SECRET is required
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      logger.error("JWT_SECRET environment variable is not set");
+      return res.status(500).json({
+        error: "Server configuration error",
+        message: "Authentication is not properly configured",
+      });
+    }
 
     jwt.verify(finalToken, secret, (err, user) => {
       if (err) {
@@ -100,7 +107,12 @@ export const optionalAuth = (req, res, next) => {
       return next();
     }
 
-    const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      // No secret configured - continue without user
+      req.user = null;
+      return next();
+    }
 
     jwt.verify(finalToken, secret, (err, user) => {
       if (err) {
@@ -124,7 +136,10 @@ export const optionalAuth = (req, res, next) => {
  * Generate JWT token for user
  */
 export const generateToken = (user, expiresIn = "7d") => {
-  const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is required");
+  }
 
   const payload = {
     id: user.id,
@@ -153,20 +168,54 @@ export const refreshToken = (req, res) => {
       });
     }
 
-    const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({
+        error: "Server configuration error",
+        code: "CONFIG_ERROR",
+      });
+    }
 
-    // Verify and decode token (even if expired, for refresh)
-    const decoded = jwt.decode(finalToken);
+    // Verify token signature and expiration - only allow refresh of valid tokens
+    // that are within 24 hours of expiration (not already expired)
+    let decoded;
+    try {
+      decoded = jwt.verify(finalToken, secret);
+    } catch (err) {
+      // Check if token is expired but signature is valid
+      if (err.name === "TokenExpiredError") {
+        // Only allow refresh if token expired within the last hour (grace period)
+        const expiredAt = new Date(err.expiredAt).getTime();
+        const oneHourAgo = Date.now() - 60 * 60 * 1000;
+        if (expiredAt < oneHourAgo) {
+          return res.status(401).json({
+            error: "Token expired too long ago",
+            code: "TOKEN_EXPIRED",
+            message: "Please log in again",
+          });
+        }
+        // Decode without verification for the grace period refresh
+        decoded = jwt.decode(finalToken);
+      } else {
+        return res.status(403).json({
+          error: "Invalid token",
+          code: "INVALID_TOKEN",
+        });
+      }
+    }
 
-    if (!decoded) {
+    if (!decoded || !decoded.id) {
       return res.status(403).json({
-        error: "Invalid token",
+        error: "Invalid token payload",
         code: "INVALID_TOKEN",
       });
     }
 
     // Generate new token with same user data
-    const newToken = generateToken(decoded, "7d");
+    const newToken = generateToken(
+      { id: decoded.id, email: decoded.email, github_id: decoded.githubId },
+      "7d"
+    );
 
     logger.info("Token refreshed successfully", {
       userId: decoded.id,

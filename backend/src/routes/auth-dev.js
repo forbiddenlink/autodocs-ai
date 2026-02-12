@@ -67,7 +67,14 @@ if (process.env.NODE_ENV !== "production") {
       }
 
       const jwt = (await import("jsonwebtoken")).default;
-      const secret = process.env.JWT_SECRET || "development_secret_change_in_production";
+      const secret = process.env.JWT_SECRET;
+
+      if (!secret) {
+        return res.status(500).json({
+          authenticated: false,
+          error: "JWT_SECRET not configured",
+        });
+      }
 
       try {
         const decoded = jwt.verify(token, secret);
